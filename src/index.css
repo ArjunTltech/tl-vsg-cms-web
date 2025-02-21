@@ -1,0 +1,191 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* data compact */
+
+[data-compact="true"] .compact-padding {
+  padding: 4px;
+  margin: 4px;
+}
+
+[data-compact="false"] .compact-padding {
+  padding: 16px;
+  margin: 16px;
+}
+
+
+
+
+
+
+/*<============== quill Tool style ==============>*/
+
+/* Increase icon size */
+.ql-toolbar.ql-snow .ql-formats button svg,
+.ql-toolbar.ql-snow .ql-formats span svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* Default light theme colors */
+[data-theme="light"] .ql-toolbar.ql-snow .ql-stroke {
+  stroke: #0D0F11 !important;
+}
+
+[data-theme="light"] .ql-toolbar.ql-snow .ql-fill {
+  fill: #0D0F11 !important;
+}
+
+[data-theme="light"] .ql-toolbar.ql-snow .ql-picker {
+  color: #0D0F11 !important;
+}
+
+/* Dark theme colors */
+[data-theme="dark"] .ql-toolbar.ql-snow .ql-stroke {
+  stroke: #F1F3F4 !important;
+}
+
+[data-theme="dark"] .ql-toolbar.ql-snow .ql-fill {
+  fill: #F1F3F4 !important;
+}
+
+[data-theme="dark"] .ql-toolbar.ql-snow .ql-picker {
+  color: #F1F3F4 !important;
+}
+
+/* Adjust toolbar background to match theme */
+[data-theme="light"] .ql-toolbar.ql-snow {
+  background-color: #FFFFFF !important;
+  border-color: #DCDCDD !important;
+}
+
+[data-theme="dark"] .ql-toolbar.ql-snow {
+  background-color: #191D23 !important;
+  border-color: #576776 !important;
+}
+
+/* Editor container styles */
+[data-theme="light"] .ql-container.ql-snow {
+  border-color: #DCDCDD !important;
+}
+
+[data-theme="dark"] .ql-container.ql-snow {
+  border-color: #576776 !important;
+}
+
+/* Adjust padding for larger icons */
+.ql-toolbar.ql-snow .ql-formats {
+  padding: 8px !important;
+}
+
+/* Active state colors - Using secondary blue for both themes */
+[data-theme="light"] .ql-snow .ql-active,
+[data-theme="dark"] .ql-snow .ql-active {
+  color: #5DAAEE !important;
+  /* secondary color */
+}
+
+[data-theme="light"] .ql-snow .ql-active .ql-stroke,
+[data-theme="dark"] .ql-snow .ql-active .ql-stroke {
+  stroke: #5DAAEE !important;
+  /* secondary color */
+}
+
+[data-theme="light"] .ql-snow .ql-active .ql-fill,
+[data-theme="dark"] .ql-snow .ql-active .ql-fill {
+  fill: #5DAAEE !important;
+  /* secondary color */
+}
+
+/* Dropdown (Picker) Styles for Dark Mode */
+[data-theme="dark"] .ql-snow .ql-picker-options {
+  background-color: #191D23 !important;
+  border-color: #576776 !important;
+}
+
+[data-theme="dark"] .ql-snow .ql-picker-options .ql-picker-item {
+  color: #F1F3F4 !important;
+}
+
+/* Hover and selected states for dropdown items */
+[data-theme="dark"] .ql-snow .ql-picker-options .ql-picker-item:hover,
+[data-theme="dark"] .ql-snow .ql-picker-options .ql-selected,
+[data-theme="light"] .ql-snow .ql-picker-options .ql-selected {
+  color: #5DAAEE !important;
+  /* secondary color */
+}
+
+[data-theme="dark"] .ql-snow .ql-picker-options .ql-picker-item:hover {
+  background-color: #262C36 !important;
+}
+
+[data-theme="dark"] .ql-snow .ql-picker-label {
+  color: #F1F3F4 !important;
+}
+
+/* Selected picker label color */
+[data-theme="light"] .ql-snow .ql-picker.ql-expanded .ql-picker-label,
+[data-theme="dark"] .ql-snow .ql-picker.ql-expanded .ql-picker-label {
+  color: #5DAAEE !important;
+  /* secondary color */
+}
+
+/* Selected text size styles */
+[data-theme="light"] .ql-snow .ql-size .ql-picker-label.ql-active,
+[data-theme="dark"] .ql-snow .ql-size .ql-picker-label.ql-active,
+.ql-snow .ql-size .ql-picker-label[data-value].ql-active {
+  color: #5DAAEE !important;
+  /* secondary color */
+}
+
+/* Tooltip styles */
+.ql-toolbar.ql-snow button {
+  position: relative;
+}
+
+.ql-toolbar.ql-snow button::before {
+  content: attr(aria-label);
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 8px;
+  background-color: #191D23;
+  color: #F1F3F4;
+  font-size: 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s, visibility 0.2s;
+  z-index: 100;
+}
+
+.ql-toolbar.ql-snow button:hover::before {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Dark mode tooltip */
+[data-theme="dark"] .ql-toolbar.ql-snow button::before {
+  background-color: #262C36;
+  border: 1px solid #576776;
+}
+
+/* Light mode tooltip */
+[data-theme="light"] .ql-toolbar.ql-snow button::before {
+  background-color: #262C36;
+  color: #F1F3F4;
+}
+
+/*<==============End quill Tool style ==============>*/
