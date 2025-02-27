@@ -31,6 +31,7 @@ import Error500 from '../pages/error/Error500.jsx';
 import Error503 from '../pages/error/Error503.jsx';
 import FAQPage from '../pages/faq/FAQPage.jsx';
 import OrganizationDetails from '../pages/organization-details/OrganizationDetails.jsx';
+import ServiceLayout from '../pages/services/ServiceLayout.jsx';
 
 
 export const router = createBrowserRouter([
@@ -125,6 +126,10 @@ export const router = createBrowserRouter([
       {
         path: 'organization-details',
         element: <ProtectedRoute><OrganizationDetails /></ProtectedRoute>,
+      },
+      {
+        path: 'services',
+        element: <ProtectedRoute><ServiceLayout /></ProtectedRoute>,
       }
     ],
   },
