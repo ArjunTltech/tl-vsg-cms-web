@@ -3,7 +3,7 @@ import {
   Instagram, 
   Facebook, 
   Share2, 
-  Twitter, 
+  Youtube,
   Linkedin,
   Link as LinkIcon,
   CheckCircle,
@@ -29,7 +29,7 @@ const SocialMediaLayout = () => {
     instagram: <Instagram className="w-6 h-6 text-pink-500" />,
     facebook: <Facebook className="w-6 h-6 text-blue-600" />,
     whatsapp: <Share2 className="w-6 h-6 text-green-500" />,
-    twitter: <Twitter className="w-6 h-6 text-blue-400" />,
+    youtube: <Youtube className="w-6 h-6 text-red-400" />,
     linkedin: <Linkedin className="w-6 h-6 text-blue-700" />
   };
 
