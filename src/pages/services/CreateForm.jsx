@@ -6,7 +6,7 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tagline, setTagline] = useState("");
-  const [points, setPoints] = useState([""]); // Array for bullet points
+  const [points, setPoints] = useState([""]);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const inputRef = useRef(null);
@@ -14,7 +14,7 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
   useEffect(() => {
     if (mode === "edit" && initialData) {
       setTitle(initialData.title || "");
-      setDescription(initialData.description || "");
+      setDescription(initialData.shortDescription || "");
       setTagline(initialData.tagline || "");
       setPoints(initialData.points || [""]);
       setImagePreview(initialData.image || null);
@@ -38,7 +38,6 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
       setImagePreview(null);
     }
   };
-  
 
   const handleRemoveImage = () => {
     setImageFile(null);
@@ -63,14 +62,14 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!title || !description || !tagline || points.some((p) => !p)) {
+    if (!title || !shortDescription || !tagline || points.some((p) => !p)) {
       toast.error("Please fill in all fields.");
       return;
     }
 
     const formData = new FormData();
     formData.append("title", title);
-    formData.append("description", description);
+    formData.append("shortDescription", shortDescription);
     formData.append("tagline", tagline);
     formData.append("points", JSON.stringify(points));
 
@@ -81,13 +80,13 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
     try {
       let response;
       if (mode === "add") {
-        response = await axiosInstance.post("/services/create", formData, {
+        response = await axiosInstance.post("/service/create-service", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success("Service added successfully!");
       } else if (mode === "edit" && initialData) {
         response = await axiosInstance.put(
-          `/services/update/${initialData.id}`,
+          `/service/update-service/${initialData.id}`,
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -98,7 +97,7 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
 
       if (onServiceCreated) onServiceCreated();
 
-      // Reset form
+      // Reset form on success
       setTitle("");
       setDescription("");
       setTagline("");
@@ -178,7 +177,6 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
       </div>
 
       {/* Image Upload */}
-      {/* Image Upload */}
       <div className="form-control mb-4">
         <label className="label">
           <span className="label-text">Image</span>
@@ -201,27 +199,13 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
             </>
           ) : (
             <div className="relative">
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="w-full h-auto rounded-lg shadow-lg"
-              />
-              <button
-                type="button"
-                className="absolute top-2 right-2 btn btn-xs btn-error"
-                onClick={handleRemoveImage}
-              >
+              <img src={imagePreview} alt="Preview" className="w-full h-auto rounded-lg shadow-lg" />
+              <button type="button" className="absolute top-2 right-2 btn btn-xs btn-error" onClick={handleRemoveImage}>
                 Remove
               </button>
             </div>
           )}
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            ref={inputRef}
-            onChange={handleImageChange}
-          />
+          <input type="file" accept="image/*" className="hidden" ref={inputRef} onChange={handleImageChange} />
         </div>
       </div>
 

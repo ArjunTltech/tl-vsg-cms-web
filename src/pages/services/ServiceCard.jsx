@@ -5,45 +5,48 @@ import { toast } from "react-toastify";
 import { format } from "date-fns";
 import DeleteConfirmModal from "../../components/ui/modal/DeleteConfirmModal";
 
-function ServiceCard({ blog, onDelete, onEdit }) {
+function ServiceCard({ service, onDelete, onEdit }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDelete = async () => {
     setIsLoading(true);
     try {
-      await axiosInstance.delete(`/blog/delete-blog/${blog.id}`);
-      onDelete(blog.id);
-      toast.success("Blog post deleted successfully!");
+      await axiosInstance.delete(`/service/delete-service/${service.id}`); // ✅ Correct API endpoint
+      onDelete(service.id);
+      toast.success("Service deleted successfully!");
     } catch (error) {
-      console.error("Error deleting blog:", error);
-      toast.error("Failed to delete the blog post. Please try again.");
+      console.error("Error deleting service:", error);
+      toast.error("Failed to delete the service. Please try again.");
     } finally {
       setIsLoading(false);
       setShowDeleteModal(false);
     }
   };
 
-
   return (
     <>
       <div className="card bg-base-200 transition-all duration-300 overflow-hidden group relative">
         <figure className="relative h-48 overflow-hidden">
           <img
-            src={blog.image}
-            alt={blog.title}
+            src={service.image} // ✅ Corrected prop usage
+            alt={service.title}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </figure>
 
         <div className="card-body p-4">
           <h2 className="card-title text-neutral-content text-lg font-bold">
-            {blog.title} - {blog.author}
+            {service.title} - {service.provider} {/* Assuming `provider` instead of `author` */}
           </h2>
-          <p className="text-neutral-content text-sm">{blog.excerpt}</p>
+          <p className="text-neutral-content text-sm">{service.shortDescription}</p>
           <div className="flex items-center gap-4 mt-2">
             <div className="flex items-center gap-1 text-neutral-content">
-              <span className="text-sm">{format(new Date(blog.date), "dd MMM, yyyy")}</span>
+              <span className="text-sm">
+                {service.createdAt
+                  ? format(new Date(service.createdAt), "dd MMM, yyyy")
+                  : "N/A"}
+              </span>
             </div>
           </div>
         </div>
@@ -66,8 +69,8 @@ function ServiceCard({ blog, onDelete, onEdit }) {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
         isLoading={isLoading} 
-        title="Delete Blog Post"
-        message="Are you sure you want to delete this blog post?"
+        title="Delete Service"
+        message="Are you sure you want to delete this service?"
       />
     </>
   );
