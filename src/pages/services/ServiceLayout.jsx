@@ -7,63 +7,49 @@ import ServiceCard from "./ServiceCard";
 import ServiceForm from "./CreateForm";
 
 function ServiceLayout() {
-  const [blogs, setBlogs] = useState([]);
+  const [services, setServices] = useState([]);  // ✅ Correct state name
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [editBlog, setEditBlog] = useState(null);
+  const [editService, setEditService] = useState(null);
   const [mode, setMode] = useState("add");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const refreshBlogList = useCallback(async () => {
+  const refreshServiceList = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get("/blog/get-all-blogs");
-      setBlogs(response.data.data);
+      const response = await axiosInstance.get("/service/get-all-service");
+      setServices(response.data.data);  // ✅ Correct state update
     } catch (err) {
-      setError("Failed to load blogs");
-      console.error("Error fetching blogs:", err);
+      setError("Failed to load services");
+      console.error("Error fetching services:", err);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        setLoading(true);
-        const response = await axiosInstance.get("/blog/get-all-blogs");
-        setBlogs(response.data.data);
-      } catch (err) {
-        setError("Failed to load blogs");
-        console.error("Error fetching blogs:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    refreshServiceList();
+  }, [refreshServiceList]);
 
-    fetchBlogs();
-  }, []);
-
-  const handleDeleteBlog = (blogId) => {
-    setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== blogId));
+  const handleDeleteService = (serviceId) => {
+    setServices((prevServices) => prevServices.filter((service) => service.id !== serviceId));
   };
 
-  const handleEditBlog = (blog) => {
-    setEditBlog(blog);
+  const handleEditService = (service) => {
+    setEditService(service);
     setMode("edit");
     setIsDrawerOpen(true);
   };
 
-  const handleAddNewPost = () => {
-    setEditBlog("");
+  const handleAddNewService = () => {
+    setEditService(null);
     setMode("add");
     setIsDrawerOpen(true);
   };
-
-  const filteredBlogs = blogs.filter((blog) =>
-    blog.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    blog.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredServices = services.filter((service) =>
+    service.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    service.shortDescription?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -71,7 +57,7 @@ function ServiceLayout() {
       {/* Drawer */}
       <div className="drawer drawer-end">
         <input
-          id="new-post-drawer"
+          id="new-service-drawer"
           type="checkbox"
           className="drawer-toggle"
           checked={isDrawerOpen}
@@ -83,32 +69,27 @@ function ServiceLayout() {
             <h1 className="text-3xl font-bold text-neutral-content">Services</h1>
             <button
               className="btn btn-primary text-white gap-2"
-              onClick={handleAddNewPost}
+              onClick={handleAddNewService}
             >
               + Add new service
             </button>
           </div>
 
-          {/* Search and Filter Section */}
+          {/* Search Section */}
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <div className="relative flex-grow">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search post..."
+                placeholder="Search service..."
                 className="input input-bordered w-full focus:outline-none pl-10 bg-base-100 text-neutral-content"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            {/* <select className="select select-bordered focus:outline-none bg-base-100 text-neutral-content">
-              <option>Latest</option>
-              <option>Most Viewed</option>
-              <option>Most Shared</option>
-            </select> */}
           </div>
 
-          {/* Blog Grid */}
+          {/* Service Grid */}
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, index) => (
@@ -116,16 +97,11 @@ function ServiceLayout() {
                   key={index}
                   className="card bg-base-100 animate-pulse transition-all duration-300 ease-in-out transform hover:scale-105"
                 >
-                  {/* Image Skeleton */}
                   <div className="h-48 bg-base-100 rounded-3xl transition-colors duration-300"></div>
-
-                  {/* Content Skeleton */}
                   <div className="card-body p-4 space-y-3">
                     <div className="h-4 bg-base-200 w-1/2 transition-colors duration-300"></div>
                     <div className="h-6 bg-base-200 w-3/4 transition-colors duration-300"></div>
                     <div className="h-4 bg-base-200 w-full transition-colors duration-300"></div>
-
-                    {/* Stats Skeleton */}
                     <div className="flex gap-4 mt-4">
                       <div className="h-4 bg-base-200 w-1/4 transition-colors duration-300"></div>
                       <div className="h-4 bg-base-200 w-1/4 transition-colors duration-300"></div>
@@ -139,12 +115,12 @@ function ServiceLayout() {
             <div className="text-center text-red-500">{error}</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredBlogs.map((blog) => (
+              {filteredServices.map((service) => (
                 <ServiceCard
-                  key={blog.id}
-                  blog={blog}
-                  onDelete={handleDeleteBlog}
-                  onEdit={() => handleEditBlog(blog)}
+                  key={service.id}
+                  service={service}  // ✅ Correct prop name
+                  onDelete={handleDeleteService}
+                  onEdit={() => handleEditService(service)}
                 />
               ))}
             </div>
@@ -153,14 +129,14 @@ function ServiceLayout() {
 
         {/* Drawer Sidebar */}
         <div className="drawer-side">
-          <label htmlFor="new-post-drawer" className="drawer-overlay"></label>
+          <label htmlFor="new-service-drawer" className="drawer-overlay"></label>
           <div className="p-4 md:w-[40%] w-full sm:w-1/2 overflow-y-scroll bg-base-100 h-[85vh] text-base-content absolute bottom-4 right-4 rounded-lg shadow-lg">
             <h2 className="text-lg font-bold mb-4">
-              {editBlog ? "Edit Post" : "Add New Post"}
+              {editService ? "Edit Service" : "Add New Service"}
             </h2>
             <ServiceForm
-              onBlogCreated={refreshBlogList}
-              initialData={editBlog}
+              onServiceCreated={refreshServiceList}
+              initialData={editService}
               mode={mode}
               setIsDrawerOpen={setIsDrawerOpen}
             />
