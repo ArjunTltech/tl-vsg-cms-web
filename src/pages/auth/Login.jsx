@@ -56,7 +56,9 @@ function LoginPage() {
             navigate('/');
         } catch (error) {
             setError(error.response?.data?.message || 'Login failed');
-            reset({ password: '' });
+          setTimeout(() => {
+            setError('');
+          },2000)
         } finally {
             setLoading(false);
         }
