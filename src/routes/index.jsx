@@ -32,12 +32,13 @@ import Error503 from '../pages/error/Error503.jsx';
 import FAQPage from '../pages/faq/FAQPage.jsx';
 import OrganizationDetails from '../pages/organization-details/OrganizationDetails.jsx';
 import ServiceLayout from '../pages/services/ServiceLayout.jsx';
+import SpecialSymbol from './SpecialSymbol.jsx';
 
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <DashboardLayout />,  // This is the layout for your dashboard
+    element: <ProtectedRoute><DashboardLayout /></ProtectedRoute>,  // This is the layout for your dashboard
     children: [
       {
         index: true,
@@ -163,6 +164,6 @@ export const router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <Error404 />
+    element: <SpecialSymbol><Error404 /></SpecialSymbol> 
   },
 ]);
