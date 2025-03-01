@@ -6,6 +6,7 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tagline, setTagline] = useState("");
+  const [taglinedescription, setTaglineDescription] = useState("");
   const [points, setPoints] = useState([""]);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -16,12 +17,14 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
       setTitle(initialData.title || "");
       setDescription(initialData.shortDescription || "");
       setTagline(initialData.tagline || "");
+      setTaglineDescription(initialData.taglinedescription || "")
       setPoints(initialData.points || [""]);
       setImagePreview(initialData.image || null);
     } else {
       setTitle("");
       setDescription("");
       setTagline("");
+      setTaglineDescription("")
       setPoints([""]);
       setImageFile(null);
       setImagePreview(null);
@@ -62,16 +65,17 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!title || !shortDescription || !tagline || points.some((p) => !p)) {
+    if (!title || !description || points.some((p) => !p)) {
       toast.error("Please fill in all fields.");
       return;
     }
 
     const formData = new FormData();
     formData.append("title", title);
-    formData.append("shortDescription", shortDescription);
+    formData.append("shortDescription", description);
     formData.append("tagline", tagline);
-    formData.append("points", JSON.stringify(points));
+    formData.append("taglineDescription", taglinedescription);
+    formData.append("servicePoints", JSON.stringify(points));
 
     if (imageFile) {
       formData.append("image", imageFile);
@@ -83,6 +87,8 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
         response = await axiosInstance.post("/service/create-service", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
+        
+        
         toast.success("Service added successfully!");
       } else if (mode === "edit" && initialData) {
         response = await axiosInstance.put(
@@ -101,6 +107,7 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
       setTitle("");
       setDescription("");
       setTagline("");
+      setTaglineDescription("")
       setPoints([""]);
       setImageFile(null);
       setImagePreview(null);
@@ -147,6 +154,17 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
           onChange={(e) => setTagline(e.target.value)}
         />
       </div>
+      <div>
+  <label className="block font-medium">Tagline Description</label>
+  <textarea
+    placeholder="Tagline description..."
+    className="textarea textarea-bordered w-full"
+    value={taglinedescription}
+    onChange={(e) => setTaglineDescription(e.target.value)}
+    rows={2} // Adjust the number of rows as needed
+  ></textarea>
+</div>
+
 
       {/* Bullet Points */}
       <div>
