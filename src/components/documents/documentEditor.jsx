@@ -109,10 +109,10 @@ const DocumentEditor = () => {
       </div>
 
       <div
-        className="overflow-hidden"
-        style={{
-          height: 'calc(100vh - 200px)',
-        }}
+        className="overflow-y-scroll min-h-[100vh]"
+        // style={{
+        //   height: 'calc(100vh - 200px)',
+        // }}
       >
         <ReactQuill
           ref={quillRef}
@@ -122,7 +122,7 @@ const DocumentEditor = () => {
           modules={modules}
           formats={formats}
           style={{
-            height: '100%',
+            height: '100vh',
             maxHeight: '100%',
             borderRadius: '8px',
           }}
