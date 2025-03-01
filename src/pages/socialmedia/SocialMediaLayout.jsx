@@ -39,8 +39,7 @@ const SocialMediaLayout = () => {
       try {
         setLoading(true);
         const response = await axiosInstance.get("/social/get-social");
-        console.log(response.data.data);
-        // Transform API data into the required format
+
         const links = response.data.data.reduce((acc, link) => {
           const platform = link.platform.toLowerCase();
           acc[platform] = {
