@@ -126,7 +126,7 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
             items: [
                 // { name: 'Notifications', path: '/notifications', icon: Bell, count: count.notifications },
                 // // { name: 'SEO', path: '/seo', icon: Globe },
-                // { name: 'Mail Config', path: '/mail-config', icon: MailIcon },
+                { name: 'Mail Config', path: '/mail-config', icon: MailIcon },
                 { name: 'Settings', path: '/settings', icon: Settings },
                 // { name: 'Help & Docs', path: '/help', icon: HelpCircle }
             ]
@@ -226,28 +226,33 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
                 </div>
 
                 <nav className="px-2 h-[calc(100vh-4rem)] overflow-y-auto scrollbar-hidden pb-24">
-                    {navigation.map((section, index) => (
-                        <div key={section.section} className={`${index > 0 ? 'mt-6' : 'mt-2'}`}>
-                            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isCollapsed ? 'h-0 opacity-0' : 'h-6 opacity-100'
-                                }`}>
-                                <h2 className="text-xs font-semibold text-neutral-content/70 uppercase tracking-wider px-2 mb-2">
-                                    {section.section}
-                                </h2>
-                            </div>
-                            {section.items.map((item) => {
-                                // Skip rendering if the role does not match (if a role is defined)
-                                if (item.role && authState.role !== item.role) {
-                                    return null;
-                                }
-
-                                return (
+                    {navigation.map((section, index) => {
+                        // Filter items based on role requirements
+                        const filteredItems = section.items.filter(item => 
+                            !item.role || authState.role === item.role
+                        );
+                        
+                        // Skip rendering the entire section if no items remain after filtering
+                        if (filteredItems.length === 0) {
+                            return null;
+                        }
+                        
+                        return (
+                            <div key={section.section} className={`${index > 0 ? 'mt-6' : 'mt-2'}`}>
+                                <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isCollapsed ? 'h-0 opacity-0' : 'h-6 opacity-100'
+                                    }`}>
+                                    <h2 className="text-xs font-semibold text-neutral-content/70 uppercase tracking-wider px-2 mb-2">
+                                        {section.section}
+                                    </h2>
+                                </div>
+                                {filteredItems.map((item) => (
                                     <NavLink
                                         key={item.path}
                                         to={item.path}
                                         onClick={() => window.innerWidth < 1024 && onClose()}
                                         className={({ isActive }) =>
                                             `flex mx-auto px-2 py-2 mt-2 rounded-lg duration-300 ease-in-out group relative
-                            ${isActive
+                                        ${isActive
                                                 ? 'bg-primary text-white'
                                                 : 'text-neutral-content hover:bg-primary/30 hover:text-white'
                                             }`
@@ -257,10 +262,10 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
                                             <NavItem item={item} isActive={isActive} />
                                         )}
                                     </NavLink>
-                                );
-                            })}
-                        </div>
-                    ))}
+                                ))}
+                            </div>
+                        );
+                    })}
                 </nav>
             </aside>
 
