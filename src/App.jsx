@@ -14,16 +14,16 @@ import { ToastContainer } from "react-toastify";
   // First install all dependencies :- npm intsall
   // Then run the code :- npm run dev
   // to build code :-  npm run build
-  // created date : 7-11-2024 || created by : Murthasa Ali  || module : 1 ||
-  // modified date : 7/11/2024 || modified by : Murthasa ALi || module : 1 ||
-  // modified date : 7/11/2024 || modified by : Murthasa Ali ck  || module : 1 ||
-  // Technical summary(Pre-setups) created date/by :  Murthasa Ali ||
+  // created date : 7-11-2024 || created by : Arjun  || module : 1 ||
+  // modified date : 7/11/2024 || modified by : Arjun || module : 1 ||
+  // modified date : 7/11/2024 || modified by : Arjun ck  || module : 1 ||
+  // Technical summary(Pre-setups) created date/by :  Arjun ||
   // Domain :   || 
   // Hosting :   ||
   // SSL :   ||
   // Database :  ||
 
-  // Phase summary :   || created date/by :  Ali  ||
+  // Phase summary :   || created date/by :  Arjun  ||
   // Phase 1 :  Git hub creation  ||  
   // Phase 2 :  Development/Main page creation ||
   // Phase 3 :  Production  ||
