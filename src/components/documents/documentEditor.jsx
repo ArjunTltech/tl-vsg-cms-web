@@ -88,13 +88,7 @@ const DocumentEditor = () => {
           </div>
         </div>
         <div className="flex gap-2 ">
-          <button
-            className={`btn btn-outline hover:btn-success mr-10 text-slate-300`}
-            onClick={saveContent}
-            disabled={isSaving}
-          >
-            {isSaving ? 'Saving...' : 'Save'}
-          </button>
+         
           {['PRIVACY', 'TERMS',].map((option) => (
             <button
               key={option}
@@ -105,6 +99,13 @@ const DocumentEditor = () => {
               {option.charAt(0).toUpperCase() + option.slice(1)}
             </button>
           ))}
+           <button
+            className={`btn btn-outline hover:btn-success mr-10 text-slate-300`}
+            onClick={saveContent}
+            disabled={isSaving}
+          >
+            {isSaving ? 'Saving...' : 'Save'}
+          </button>
         </div>
       </div>
 
