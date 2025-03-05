@@ -148,13 +148,13 @@ const Settings = () => {
         </div>
       </Card>
       {/* Language and Region */}
-      <Card className="p-6 mb-6">
+
+      {/* <Card className="p-6 mb-6">
         <h2 className="text-lg font-semibold mb-4 flex items-center">
           <Globe className="w-5 h-5 mr-2" />
           Language & Region
         </h2>
         <div className="space-y-4">
-          {/* Language Dropdown - Only show English */}
           <div>
             <label className="block text-sm font-medium mb-1">Language</label>
             <select
@@ -165,7 +165,6 @@ const Settings = () => {
             </select>
           </div>
 
-          {/* Time Zone Dropdown - Show current time zone */}
           <div>
             <label className="block text-sm font-medium mb-1">Time Zone</label>
             <select
@@ -177,7 +176,7 @@ const Settings = () => {
             </select>
           </div>
         </div>
-      </Card>
+      </Card> */}
 
       {/* Account Settings */}
       <Card className="p-6 mb-6">

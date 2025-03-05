@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-
+import BackgroundImage from '../../assets/images/bg-img.jpg';
 import { Eye, EyeOff, Mail, Lock, Loader, X } from 'lucide-react';
 import axiosInstance from '../../config/axios';
 import { useAuth } from '../../context/AuthContext';
@@ -56,20 +56,21 @@ function LoginPage() {
             navigate('/');
         } catch (error) {
             setError(error.response?.data?.message || 'Login failed');
-          setTimeout(() => {
-            setError('');
-          },2000)
+            setTimeout(() => {
+                setError('');
+            }, 2000)
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div style={{ backgroundImage: "url('https://thumbs.dreamstime.com/z/business-people-work-together-better-results-their-firm-group-to-achieve-best-thoughtful-businesswoman-smiling-227830299.jpg?ct=jpeg')" }} className="min-h-screen bg-cover bg-center w-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 bg-black/70 backdrop-blur-sm p-8 rounded-xl shadow-lg">
+        <div style={{ backgroundImage: `url(${BackgroundImage})` }} className=" relative min-h-screen bg-cover bg-center w-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className='inset-0 absolute backdrop-blur-sm'></div>
+            <div className="max-w-md w-full space-y-8 bg-black/70 z-[999] p-8 rounded-xl shadow-lg">
                 <div className="flex justify-between flex-wrap"><div className="text-center">
                     <h2 className="text-3xl font-extrabold text-gray-200">Welcome back</h2>
-                    <p className="mt-2 text-sm text-gray-200">Please sign in to your account</p>
+                    <p className="mt-2 text-sm text-gray-200">sign in to your account</p>
                 </div>
                     <img src="https://www.vsgenxsolutions.com/_next/static/media/logo-1.ded65dd8.png" className='h-14 rounded-sm w-auto' alt="" /></div>
 
