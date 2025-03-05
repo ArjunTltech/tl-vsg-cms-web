@@ -95,7 +95,7 @@ function SessionChart() {
                     {!loading && !error && chartData.length > 0 && (
                         <Chart
                             chartType="BarChart"
-                            width="90%"
+                            width="100%"
                             height="400px"
                             data={chartData}
                             options={options}
