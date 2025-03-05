@@ -198,8 +198,8 @@ function ForgotPassword() {
                         </button>
 
                         <p className="mt-2 text-center text-sm text-gray-300">
-                            Don't have an account?{' '}
-                            <Link to="/signup" className="font-medium text-blue-300 hover:text-blue-500">Sign up</Link>
+                        Think you don’t need a reset? {' '}
+                            <Link to="/login" className="font-medium text-blue-300 hover:text-blue-500">Login</Link>
                         </p>
                     </form>
                 )}
