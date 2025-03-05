@@ -142,23 +142,45 @@ const SeoLayout = () => {
 
   return (
     <div className="w-full mx-auto bg-base-100 p-6 space-y-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-neutral-content">SEO Settings</h2>
-        <div className="dropdown dropdown-end tooltip tooltip-open tooltip-left" data-tip="Select a page">
-          <div tabIndex={0} role="button" className="btn m-1">
-            {selectedPage.charAt(0).toUpperCase() + selectedPage.slice(1)}
-          </div>
-          <ul tabIndex={0} className="dropdown-content menu bg-base-200 rounded-box z-[1] w-52 p-2 shadow">
-            {pages.map(page => (
-              <li key={page}>
-                <a onClick={() => handlePageChange(page)}>
-                  {page.charAt(0).toUpperCase() + page.slice(1)}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+    <div className="flex items-center justify-between pe-4">
+  <h2 className="text-2xl font-bold text-neutral-content">SEO Settings</h2>
+  <div className="flex items-center gap-3">
+    <span className="text-sm font-medium text-neutral-content">
+      Selected Page:
+    </span>
+    <div 
+      className="dropdown dropdown-end 
+                 tooltip tooltip-accent 
+                 text-xs 
+                 font-semibold 
+                 tracking-wide"
+      data-tip="Select a page from the list"
+    >
+      <div 
+        tabIndex={0} 
+        role="button" 
+        className="btn btn-sm "
+      >
+        {selectedPage.charAt(0).toUpperCase() + selectedPage.slice(1)}
       </div>
+      <ul 
+        tabIndex={0} 
+        className="dropdown-content menu bg-base-200 rounded-box z-[1] w-52 p-2 shadow"
+      >
+        {pages.map(page => (
+          <li key={page}>
+            <a 
+              onClick={() => handlePageChange(page)}
+              className="hover:bg-base-300"
+            >
+              {page.charAt(0).toUpperCase() + page.slice(1)}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</div>
 
       {isLoading ? (
         <div className="flex justify-center items-center min-h-screen">
