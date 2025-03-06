@@ -167,6 +167,7 @@ const FAQPage = () => {
               onFAQCreated={refreshFAQList}
               initialData={editFAQ}
               mode={mode}
+              faqs={faqs}
               setIsDrawerOpen={setIsDrawerOpen}
             />
           </div>
@@ -176,6 +177,7 @@ const FAQPage = () => {
       {faqToDelete && (
         <DeleteConfirmModal
           isOpen={faqToDelete !== null}
+          faqs={faqs}
           onClose={() => setFaqToDelete(null)}
           onConfirm={() => handleDeleteFAQ(faqToDelete)}
           title="Delete FAQ?"

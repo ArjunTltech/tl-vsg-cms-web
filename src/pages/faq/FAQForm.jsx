@@ -1,109 +1,8 @@
-// import React, { useState, useEffect } from 'react';
-// import { toast } from 'react-toastify';
-// import axiosInstance from '../../config/axios';
-
-// function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen }) {
-//   const [faq, setFaq] = useState({
-//     question: '',
-//     answer: ''
-//   });
-
-//   useEffect(() => {
-//     if (mode === "edit" && initialData) {
-//       setFaq({
-//         question: initialData.question || '',
-//         answer: initialData.answer || ''
-//       });
-//     } else if (mode === "add") {
-//       setFaq({
-//         question: '',
-//         answer: ''
-//       });
-//     }
-//   }, [mode, initialData]);
-
-//   const handleSubmit = async (event) => {
-//     event.preventDefault();
-
-//     if (!faq.question?.trim() || !faq.answer?.trim()) {
-//       toast.error("Please fill in all fields.");
-//       return;
-//     }
-
-//     try {
-//       let response;
-//       if (mode === "add") {
-//         // First get the current FAQs to determine the next order
-//         const faqsResponse = await axiosInstance.get('/qna/get-faqs');
-//         const currentFAQs = faqsResponse.data.data || [];
-//         const nextOrder = currentFAQs.length + 1;
-
-//         const newFAQ = {
-//           ...faq,
-//           order: nextOrder
-//         };
-        
-//         response = await axiosInstance.post("/qna/create-faq", newFAQ);
-//         toast.success("FAQ created successfully!");
-//       } else if (mode === "edit" && initialData) {
-//         const updatedFAQ = {
-//           ...faq,
-//           order: initialData.order
-//         };
-//         response = await axiosInstance.put(`/qna/update-faq/${initialData.id}`, updatedFAQ);
-//         toast.success("FAQ updated successfully!");
-//       }
-
-//       if (onFAQCreated) {
-//         onFAQCreated();
-//       }
-
-//       setFaq({
-//         question: '',
-//         answer: ''
-//       });
-//       setIsDrawerOpen(false);
-//     } catch (error) {
-//       console.error("Error handling FAQ:", error);
-//       const errorMessage = error.response?.data?.message || "Failed to save FAQ. Please try again.";
-//       toast.error(errorMessage);
-//     }
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <div className="mb-4">
-//         <label className="block text-sm font-medium mb-1">Question</label>
-//         <input
-//           type="text"
-//           placeholder="Enter FAQ question"
-//           className="input input-bordered w-full"
-//           value={faq.question}
-//           onChange={(e) => setFaq({ ...faq, question: e.target.value })}
-//         />
-//       </div>
-//       <div className="mb-4">
-//         <label className="block text-sm font-medium mb-1">Answer</label>
-//         <textarea
-//           placeholder="Enter FAQ answer"
-//           className="textarea textarea-bordered w-full"
-//           value={faq.answer}
-//           onChange={(e) => setFaq({ ...faq, answer: e.target.value })}
-//         ></textarea>
-//       </div>
-//       <button type="submit" className="btn btn-primary w-full">
-//         {mode === "add" ? "Create FAQ" : "Update FAQ"}
-//       </button>
-//     </form>
-//   );
-// }
-
-// export default FAQForm;
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../config/axios';
 
-function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen }) {
+function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen, faqs }) {
   const [faq, setFaq] = useState({
     question: '',
     answer: ''
@@ -111,45 +10,76 @@ function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen }) {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Log faqs prop to check if it's being properly passed
   useEffect(() => {
+    console.log("FAQs prop received:", faqs);
+    console.log("FAQs prop type:", typeof faqs);
+    console.log("Is faqs an array?", Array.isArray(faqs));
+    
     if (mode === "edit" && initialData) {
       setFaq({
         question: initialData.question || '',
         answer: initialData.answer || ''
       });
+      console.log("Edit mode initialData:", initialData);
     } else if (mode === "add") {
       setFaq({
         question: '',
         answer: ''
       });
+      console.log("Add mode activated");
     }
     // Reset errors and submission state
     setErrors({});
     setIsSubmitting(false);
-  }, [mode, initialData]);
+  }, [mode, initialData, faqs]);
 
   const validateField = (name, value) => {
+    console.log(`Validating ${name} with value: "${value}"`);
+    console.log("Available FAQs for validation:", faqs);
+    
     const wordCount = value.trim().split(/\s+/).length; // Count words
     
     switch (name) {
       case 'question':
-        return value.trim().length >= 5
-          ? null
-          : "Question must be at least 5 characters long";
+        if (value.trim().length < 5) {
+          return "Question must be at least 5 characters long";
+        }
         
+        // Check if the question is a duplicate (only for new FAQs or if the question has changed)
+        if (faqs && Array.isArray(faqs)) {
+          console.log("Checking for duplicates among", faqs.length, "existing FAQs");
+          
+          const duplicates = faqs.filter(
+            (existingFAQ) => 
+              existingFAQ.question.trim().toLowerCase() === value.trim().toLowerCase() &&
+              // Don't flag as duplicate if it's the same FAQ being edited
+              (mode !== "edit" || existingFAQ.id !== initialData?.id)
+          );
+          
+          if (duplicates.length > 0) {
+            console.log("Duplicate found:", duplicates);
+            return "This question already exists. Please enter a different question.";
+          }
+        } else {
+          console.log("Cannot check for duplicates - faqs is not available or not an array");
+        }
+        
+        return null;
+  
       case 'answer':
         return wordCount >= 10 && wordCount <= 45
           ? null
-          : "Answer must be between 10 and 45 words long"; // Updated message
-        
+          : "Answer must be between 10 and 45 words long";
+  
       default:
         return null;
     }
   };
   
-
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log("Form submission initiated");
 
     // Validate all fields
     const newErrors = {};
@@ -162,15 +92,20 @@ function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen }) {
 
     // If there are any errors, set them and prevent submission
     if (Object.keys(newErrors).length > 0) {
+      console.log("Validation errors found:", newErrors);
       setErrors(newErrors);
       return;
     }
 
     // Prevent multiple submissions
-    if (isSubmitting) return;
+    if (isSubmitting) {
+      console.log("Submission already in progress");
+      return;
+    }
 
     try {
       setIsSubmitting(true);
+      console.log("Submitting FAQ:", faq);
 
       let response;
       if (mode === "add") {
@@ -184,6 +119,7 @@ function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen }) {
           order: nextOrder
         };
 
+        console.log("Creating new FAQ with order:", nextOrder);
         response = await axiosInstance.post("/qna/create-faq", newFAQ);
         toast.success("FAQ created successfully!");
       } else if (mode === "edit" && initialData) {
@@ -191,11 +127,13 @@ function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen }) {
           ...faq,
           order: initialData.order
         };
+        console.log("Updating FAQ with ID:", initialData.id);
         response = await axiosInstance.put(`/qna/update-faq/${initialData.id}`, updatedFAQ);
         toast.success("FAQ updated successfully!");
       }
 
       if (onFAQCreated) {
+        console.log("Calling onFAQCreated callback");
         onFAQCreated();
       }
 

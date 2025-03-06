@@ -16,12 +16,12 @@ const schema = yup.object().shape({
     title: yup.string().required('OG title is required').max(60, 'OG title should be max 60 characters'),
     description: yup.string().required('OG description is required').max(160, 'OG description should be max 160 characters'),
     type: yup.string(),
-    image: yup.string().url('Must be a valid image URL')
+    image: yup.string().required('OG image is required').url('Must be a valid image URL')
   }),
   twitter: yup.object().shape({
     title: yup.string().required('Twitter title is required').max(60, 'Twitter title should be max 60 characters'),
     description: yup.string().required('Twitter description is required').max(160, 'Twitter description should be max 160 characters'),
-    image: yup.string().url('Must be a valid image URL'),
+    image: yup.string().required('Twitter image is required').url('Must be a valid image URL'),
     card: yup.string()
   })
 });
