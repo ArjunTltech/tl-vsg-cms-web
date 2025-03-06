@@ -395,6 +395,7 @@ const Profile = () => {
                 <div className="relative">
                   <label className="block text-xs font-medium  mb-1">
                     Current Password
+                    <span className="text-error pl-1">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -425,6 +426,8 @@ const Profile = () => {
                 <div className="relative">
                   <label className="block text-xs font-medium  mb-1">
                     New Password
+                    <span className="text-error pl-1">*</span>
+
                   </label>
                   <div className="relative">
                     <input
@@ -455,6 +458,8 @@ const Profile = () => {
                 <div className="relative">
                   <label className="block text-xs font-medium  mb-1">
                     Confirm New Password
+                    <span className="text-error pl-1">*</span>
+
                   </label>
                   <div className="relative">
                     <input

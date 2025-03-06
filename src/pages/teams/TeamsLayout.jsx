@@ -15,6 +15,8 @@ const TeamManagement = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [errors, setErrors] = useState({});
+
   const [formData, setFormData] = useState({
     name: '',
     position: '',
@@ -31,12 +33,12 @@ const TeamManagement = () => {
     toolbar: [
       [{ 'header': [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{'list': 'ordered'}, {'list': 'bullet'}],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
       ['link'],
       ['clean']
     ],
   };
-  
+
   const quillFormats = [
     'header',
     'bold', 'italic', 'underline', 'strike',
@@ -73,6 +75,7 @@ const TeamManagement = () => {
     setSelectedFile(null);
     setIsEditing(false);
     setIsDrawerOpen(true);
+    setErrors({})
   };
 
   const handleEdit = (member) => {
@@ -96,9 +99,66 @@ const TeamManagement = () => {
       toast.error('Failed to delete team member.');
     }
   };
+  const validateData = (data) => {
+    const errors = {};
+
+    if (!data.name || data.name.trim().length < 2 || data.name.trim().length > 50) {
+      errors.name = "Name must be between 2 and 50 characters long.";
+    }
+
+    if (!data.position || data.position.trim().length < 2 || data.position.trim().length > 50) {
+      errors.position = "Position must be between 2 and 50 characters long.";
+    }
+
+    if (!data.bio) {
+      errors.bio = "Bio is required.";
+    } else {
+      const plainTextBio = data.bio.replace(/<[^>]*>/g, '').trim(); // Remove HTML tags
+      const wordCount = plainTextBio.split(/\s+/).length; // Count words
+    
+      if (wordCount < 100 || wordCount > 310) {
+        errors.bio = "Bio must be between 100 and 310 words.";
+      }
+    }
+    const urlPattern = /^(https?:\/\/)?([\w\-]+\.)+[\w]{2,}(\/\S*)?$/;
+    if (!data.linkedin || !urlPattern.test(data.linkedin)) {
+      errors.linkedin = "LinkedIn must be a valid URL.";
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!data.email || !emailPattern.test(data.email)) {
+      errors.email = "Email must be a valid email address.";
+    }
+
+    if (!data.order || isNaN(data.order)) {
+      errors.order = "Order must be a valid number.";
+    }
+
+    if (typeof data.isActive !== "boolean") {
+      errors.isActive = "isActive must be a boolean value.";
+    }
+   
+  
+
+    return errors;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const validationErrors = validateData(formData);
+  const newErrors = { ...validationErrors };
+
+  if (!selectedFile) {
+    const imgPattern = /\.(jpeg|jpg|gif|png|svg)$/i;
+    if (!formData.img || !imgPattern.test(formData.img)) {
+      newErrors.img = "Image must be a valid URL and should be in JPG, JPEG, PNG, GIF, or SVG format.";
+    }
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
     const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
       formDataToSend.append(key, formData[key]);
@@ -210,7 +270,7 @@ const TeamManagement = () => {
               ✕
             </button>
           </div>
-          
+
           {/* Scrollable content */}
           <div className="overflow-y-auto flex-1 p-4">
             <div className="flex flex-col lg:flex-row gap-6">
@@ -225,21 +285,21 @@ const TeamManagement = () => {
                     />
                     <h3 className="text-xl md:text-2xl font-bold text-center">{member.name}</h3>
                     <p className="text-md md:text-lg text-center">{member.position}</p>
-                    
+
                     <div className="flex gap-3 mt-4">
                       {member.linkedin && (
-                        <a 
-                          href={member.linkedin} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
+                        <a
+                          href={member.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="btn btn-sm btn-circle"
                         >
                           <Linkedin className="h-4 w-4" />
                         </a>
                       )}
                       {member.email && (
-                        <a 
-                          href={`mailto:${member.email}`} 
+                        <a
+                          href={`mailto:${member.email}`}
                           className="btn btn-sm btn-circle"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -250,7 +310,7 @@ const TeamManagement = () => {
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Additional details table */}
                   <div className="mt-6 bg-base-200 p-3 rounded">
                     <h4 className="font-semibold mb-2 text-sm">Member Details</h4>
@@ -281,25 +341,25 @@ const TeamManagement = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Right column - Biography and other details */}
               <div className="lg:w-2/3">
                 <div className="bg-base-300 p-6 rounded-lg h-full">
                   <h3 className="text-lg font-semibold mb-3">Biography</h3>
-                  <div 
+                  <div
                     className="bg-base-200 p-4 rounded-lg mb-6 prose max-w-none"
                     dangerouslySetInnerHTML={{ __html: member.bio }}
                   />
-                  
+
                   {/* Additional sections can go here */}
                   {member.linkedin && (
                     <div className="mt-4">
                       <h3 className="text-lg font-semibold mb-3">Social Media</h3>
                       <div className="bg-base-200 p-4 rounded-lg">
                         <h4 className="font-medium mb-2">LinkedIn</h4>
-                        <a 
+                        <a
                           href={member.linkedin}
-                          target="_blank" 
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline break-all"
                         >
@@ -312,7 +372,7 @@ const TeamManagement = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Footer with action buttons */}
           <div className="p-4 border-t border-base-300 flex justify-end gap-2">
             <button
@@ -325,7 +385,7 @@ const TeamManagement = () => {
               <Edit className="h-4 w-4 mr-2" />
               Edit Member
             </button>
-            <button 
+            <button
               className="btn btn-sm md:btn-md"
               onClick={onClose}
             >
@@ -361,8 +421,8 @@ const TeamManagement = () => {
               <h2 className="text-xl font-bold">
                 {isEditing ? 'Edit Member' : 'Add Member'}
               </h2>
-              <button 
-                className="btn btn-sm btn-circle" 
+              <button
+                className="btn btn-sm btn-circle"
                 onClick={() => setIsDrawerOpen(false)}
               >
                 ✕
@@ -370,32 +430,35 @@ const TeamManagement = () => {
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
+                <label className="block text-sm font-medium mb-1">Name  <span className="text-error">*</span> </label>
                 <input
                   type="text"
                   placeholder="Name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="input input-bordered w-full"
-                  required
+
                 />
+                {errors.name && <p className="text-error">{errors.name}</p>}
+
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium mb-1">Position</label>
+                <label className="block text-sm font-medium mb-1">Position  <span className="text-error">*</span> </label>
                 <input
                   type="text"
                   placeholder="Position"
                   value={formData.position}
                   onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                   className="input input-bordered w-full"
-                  required
+
                 />
+                {errors.position && <p className="text-error">{errors.position}</p>}
               </div>
-              
+
               {/* ReactQuill Editor for Bio with contained styling */}
               <div className="quill-container">
-                <label className="block text-sm font-medium mb-1">Bio</label>
+                <label className="block text-sm font-medium mb-1">Bio  <span className="text-error">*</span></label>
                 <div className="rounded-md border border-gray-300">
                   <ReactQuill
                     theme="snow"
@@ -424,10 +487,12 @@ const TeamManagement = () => {
                     margin-bottom: 2rem;
                   }
                 `}</style>
+           {errors.bio && <p className="text-error">{errors.bio}</p>}
+
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium mb-1">LinkedIn URL</label>
+                <label className="block text-sm font-medium mb-1">LinkedIn URL  <span className="text-error">*</span></label>
                 <input
                   type="text"
                   placeholder="LinkedIn URL"
@@ -435,10 +500,12 @@ const TeamManagement = () => {
                   onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
                   className="input input-bordered w-full"
                 />
+                {errors.linkedin && <p className="text-error">{errors.linkedin}</p>}
+
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
+                <label className="block text-sm font-medium mb-1">Email  <span className="text-error">*</span></label>
                 <input
                   type="email"
                   placeholder="Email"
@@ -446,10 +513,12 @@ const TeamManagement = () => {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="input input-bordered w-full"
                 />
+                {errors.email && <p className="text-error">{errors.email}</p>}
+
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium mb-1">Display Order</label>
+                <label className="block text-sm font-medium mb-1">Display Order  <span className="text-error">*</span></label>
                 <input
                   type="number"
                   placeholder="Order"
@@ -457,19 +526,23 @@ const TeamManagement = () => {
                   onChange={(e) => setFormData({ ...formData, order: e.target.value })}
                   className="input input-bordered w-full"
                 />
+                {errors.order && <p className="text-error">{errors.order}</p>}
+
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium mb-1">Profile Image</label>
+                <label className="block text-sm font-medium mb-1">Profile Image  <span className="text-error">*</span></label>
                 <input
                   type="file"
                   onChange={(e) => setSelectedFile(e.target.files[0])}
                   className="file-input file-input-bordered w-full"
                   accept="image/*"
-                  required={!isEditing}
+                // required={!isEditing}
                 />
+                {errors.img && <p className="text-error">{errors.img}</p>}
+
               </div>
-              
+
               <div className="flex justify-end gap-2 pt-4">
                 <button type="button" className="btn" onClick={() => setIsDrawerOpen(false)}>
                   Cancel
@@ -484,7 +557,7 @@ const TeamManagement = () => {
       )}
 
       {/* Detail View Modal */}
-      <DetailModal 
+      <DetailModal
         member={selectedMember}
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}

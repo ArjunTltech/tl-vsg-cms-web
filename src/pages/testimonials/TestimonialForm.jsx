@@ -170,10 +170,12 @@ function TestimonialForm({ onTestimonialCreated, initialData, mode, setIsDrawerO
         return value.trim().length >= 2
           ? null
           : "Position must be at least 2 characters long";
-      case 'text':
-        return value.trim().length >= 10
+      case 'text': {
+        const wordCount = value.trim().split(/\s+/).length;
+        return wordCount >= 10 && wordCount <= 110
           ? null
-          : "Testimonial text must be at least 10 characters long";
+          : "Testimonial must be between 10 and 110 words long";
+      }
       case 'rating':
         return value >= 1 && value <= 5
           ? null
@@ -182,6 +184,8 @@ function TestimonialForm({ onTestimonialCreated, initialData, mode, setIsDrawerO
         return null;
     }
   };
+  
+  
 
   const handleSubmit = async (event) => {
     event.preventDefault();
