@@ -129,19 +129,24 @@ function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen }) {
   }, [mode, initialData]);
 
   const validateField = (name, value) => {
+    const wordCount = value.trim().split(/\s+/).length; // Count words
+    
     switch (name) {
       case 'question':
         return value.trim().length >= 5
           ? null
           : "Question must be at least 5 characters long";
+        
       case 'answer':
-        return value.trim().length >= 10
+        return wordCount >= 10 && wordCount <= 45
           ? null
-          : "Answer must be at least 10 characters long";
+          : "Answer must be between 10 and 45 words long"; // Updated message
+        
       default:
         return null;
     }
   };
+  
 
   const handleSubmit = async (event) => {
     event.preventDefault();

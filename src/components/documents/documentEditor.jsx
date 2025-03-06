@@ -13,7 +13,7 @@ const DocumentEditor = () => {
 
   // Send GET request to the backend to get the document
   const fetchContent = async (option) => {
-    try {
+    try {      
       const response = await axiosInstance.get(`/document/${selectedOption}`)
       if (response.status == 200) {
         setValue(response.data.document.content);
@@ -30,12 +30,28 @@ const DocumentEditor = () => {
         title: selectedOption.charAt(0).toUpperCase() + selectedOption.slice(1),
         content: value,
         type: selectedOption,
-      };
-
+      };      
+      const plainTextContent = payload.content.replace(/<[^>]*>/g, "").trim();
+      const wordCount = plainTextContent.split(/\s+/).length;
+    
+      if (wordCount < 200) {
+        toast.error("Content must have at least 200 words.");
+        return
+      } else if (wordCount > 570 && selectedOption=="PRIVACY") {
+        toast.error("Content cannot exceed 570 words.");
+        return 
+      } 
+       else if (wordCount > 450 && selectedOption=="TERMS") {
+        toast.error("Content cannot exceed 450 words.");
+        return 
+      } 
+      else if(wordCount.length ==0){
+        toast.error("Details required")
+      }     
       // Send POST request to the backend to create or update the document
       const response = await axiosInstance.post('/document/create-document', payload);
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         toast.success(`${selectedOption} document has been saved successfully!`);
       }
     } catch (error) {
