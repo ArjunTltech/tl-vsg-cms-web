@@ -208,11 +208,15 @@ const Profile = () => {
     newPassword: yup
       .string()
       .min(8, 'New password must be at least 8 characters long')
+      .matches(/[A-Z]/, 'New password must contain at least one uppercase letter')
+      .matches(/[!@#$%^&*(),.?":{}|<>]/, 'New password must contain at least one special character')
       .required('New password is required'),
     confirmPassword: yup
       .string()
+      .oneOf([yup.ref('newPassword')], 'Passwords must match')
       .required('Confirm new password is required'),
   });
+  
 
   const {
     register,
