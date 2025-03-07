@@ -297,6 +297,7 @@
 
 // export default UserList;
 
+import { EyeIcon, EyeOffIcon } from "lucide-react"; 
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
@@ -321,10 +322,8 @@ const userSchema = yup.object().shape({
     is: false,
     then: () => yup.string()
       .min(8, 'Password must be at least 8 characters')
-      // .matches(
-      //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      //   'Password must include uppercase, lowercase, number, and special character'
-      // )
+      .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character')
       .required('Password is required'),
     otherwise: () => yup.string().nullable(),
   }),
@@ -338,6 +337,8 @@ const userSchema = yup.object().shape({
   role: yup.string().required('Role is required'),
   isEditing: yup.boolean(),
 });
+
+
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -451,27 +452,44 @@ const UserList = () => {
     name, 
     register, 
     errors, 
-    type = 'text', 
-    mandatory = false,
+    type = "text", 
+    mandatory = false, 
     ...props 
-  }) => (
-    <div className="form-control mt-4">
-      <label className="label">
-        <span className="label-text">
-          {label}
-          {mandatory && <span className="text-error ml-1">*</span>}
-        </span>
-      </label>
-      <input
-        type={type}
-        className={`input input-bordered ${errors[name] ? 'input-error' : ''}`}
-        {...register(name)}
-        {...props}
-      />
-      {errors[name] && <span className="text-error text-sm mt-1">{errors[name].message}</span>}
-    </div>
-  );
-
+  }) => {
+    const [showPassword, setShowPassword] = useState(false);
+  
+    return (
+      <div className="form-control mt-4 relative">
+        <label className="label">
+          <span className="label-text">
+            {label}
+            {mandatory && <span className="text-error ml-1">*</span>}
+          </span>
+        </label>
+        <div className="relative">
+          <input
+            type={type === "password" ? (showPassword ? "text" : "password") : type}
+            className={`input input-bordered w-full pr-10 ${errors[name] ? "input-error" : ""}`}
+            {...register(name)}
+            {...props}
+          />
+          {type === "password" && (
+            <button
+              type="button"
+              className="absolute inset-y-0 right-3 flex items-center"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+            </button>
+          )}
+        </div>
+        {errors[name] && <span className="text-error text-sm mt-1">{errors[name].message}</span>}
+      </div>
+    );
+  };
+  
+    
+  
   return (
     <div className="p-6 bg-base-100 rounded-lg space-y-6">
       {/* Header */}

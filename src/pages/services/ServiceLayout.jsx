@@ -7,7 +7,7 @@ import ServiceCard from "./ServiceCard";
 import ServiceForm from "./CreateForm";
 
 function ServiceLayout() {
-  const [services, setServices] = useState([]);  // ✅ Correct state name
+  const [services, setServices] = useState([]);  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -19,7 +19,7 @@ function ServiceLayout() {
     try {
       setLoading(true);
       const response = await axiosInstance.get("/service/get-all-service");
-      setServices(response.data.data);  // ✅ Correct state update
+      setServices(response.data.data);  
     } catch (err) {
       setError("Failed to load services");
       console.error("Error fetching services:", err);
@@ -118,7 +118,7 @@ function ServiceLayout() {
               {filteredServices.map((service) => (
                 <ServiceCard
                   key={service.id}
-                  service={service}  // ✅ Correct prop name
+                  service={service}  
                   onDelete={handleDeleteService}
                   onEdit={() => handleEditService(service)}
                 />

@@ -15,7 +15,7 @@ const TestimonialLayout = () => {
   const refreshTestimonialList = useCallback(async () => {
     try {
       const response = await axiosInstance.get('/contents/testimonials');
-      setTestimonials(response.data.data);
+         setTestimonials(response.data.data);
     } catch (err) {
       console.error('Error fetching testimonials:', err);
       toast.error('Failed to load testimonials');
@@ -73,7 +73,7 @@ const TestimonialLayout = () => {
           </div>
 
           <div className="mx-auto space-y-4">
-            {testimonials.map((testimonial) => (
+            {testimonials.length>0?(testimonials.map((testimonial) => (
               <div key={testimonial.id} className="bg-base-200 p-4 rounded-lg flex justify-between items-center">
                 <div className="flex-1 select-none">
                   <div className="text-xl font-bold text-accent">{testimonial.author}</div>
@@ -103,7 +103,9 @@ const TestimonialLayout = () => {
                   </button>
                 </div>
               </div>
-            ))}
+            ))):( <div className="w-full h-96  flex justify-center items-center">
+              <p>No Testimonials available</p>
+            </div>)}
           </div>
         </div>
 
