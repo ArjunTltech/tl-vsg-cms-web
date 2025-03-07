@@ -5,6 +5,7 @@ import DeleteConfirmModal from '../../components/ui/modal/DeleteConfirmModal';
 import { toast } from 'react-toastify';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import playNotificationSound from '../../utils/playNotification';
 
 const TeamManagement = () => {
   const [teamMembers, setTeamMembers] = useState([]);
@@ -93,6 +94,7 @@ const TeamManagement = () => {
       setIsModalOpen(false);
       setMemberToDelete(null);
       setIsLoading(false);
+      playNotificationSound()
       toast.success(`Deleted ${memberToDelete.name} successfully!`);
     } catch (error) {
       console.error('Error deleting team member:', error);

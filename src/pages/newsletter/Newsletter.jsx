@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../../config/axios";
 import SubscriberTable from "../../components/newsletter/SubscriberTable";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
+import playNotificationSound from "../../utils/playNotification";
 
 const Newsletter = () => {
     const [subscribers, setSubscribers] = useState([]);
@@ -17,8 +20,20 @@ const Newsletter = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [emailSubject, setEmailSubject] = useState("");
     const [emailMessage, setEmailMessage] = useState("");
+    const [errors, setErrors] = useState({});
 
     const limitOptions = [5, 10, 20, 50];
+
+    // Define Yup validation schema
+    const newsletterSchema = Yup.object().shape({
+        emailSubject: Yup.string()
+            .required("Email subject is required")
+            .min(3, "Subject must be at least 3 characters")
+            .max(100, "Subject cannot exceed 100 characters"),
+        emailMessage: Yup.string()
+            .required("Email message is required")
+            .min(10, "Message must be at least 10 characters")
+    });
 
     const fetchSubscribers = async () => {
         setLoading(true);
@@ -56,28 +71,47 @@ const Newsletter = () => {
         setFilters({ page: 1, limit });
     };
 
- 
+    const validateForm = async () => {
+        try {
+            await newsletterSchema.validate(
+                { emailSubject, emailMessage },
+                { abortEarly: false }
+            );
+            setErrors({});
+            return true;
+        } catch (error) {
+            const validationErrors = {};
+            error.inner.forEach((err) => {
+                validationErrors[err.path] = err.message;
+            });
+            setErrors(validationErrors);
+            return false;
+        }
+    };
 
     const handleSendNewsletter = async () => {
-        if (!emailSubject.trim() || !emailMessage.trim()) {
-            alert("Both subject and message are required!");
+        const isValid = await validateForm();
+        
+        if (!isValid) {
             return;
         }
 
         try {
-            setIsModalOpen(false)
+            setIsModalOpen(false);
             const response = await axiosInstance.post("/newsletter/send-newsletter", {
                 subject: emailSubject,
                 content: emailMessage,
             });
-
+            // playNotificationSound()
+            toast.success("Bulk mail sent successfully");
         } catch (error) {
             console.error("Error sending bulk email:", error);
-            alert("Failed to send the newsletter. Please try again.");
+            toast.error("Error sending bulk email");
         } finally {
             setIsModalOpen(false);
             setEmailSubject("");
             setEmailMessage("");
+            setErrors({});
         }
     };
 
@@ -116,11 +150,16 @@ const Newsletter = () => {
                             </label>
                             <input
                                 type="text"
-                                className="input input-bordered w-full"
+                                className={`input input-bordered w-full ${errors.emailSubject ? "input-error" : ""}`}
                                 placeholder="Enter email subject"
                                 value={emailSubject}
                                 onChange={(e) => setEmailSubject(e.target.value)}
                             />
+                            {errors.emailSubject && (
+                                <label className="label">
+                                    <span className="label-text-alt text-error">{errors.emailSubject}</span>
+                                </label>
+                            )}
                         </div>
 
                         {/* Message Textarea */}
@@ -129,11 +168,16 @@ const Newsletter = () => {
                                 <span className="label-text font-medium">Message</span>
                             </label>
                             <textarea
-                                className="textarea textarea-bordered w-full"
+                                className={`textarea textarea-bordered w-full ${errors.emailMessage ? "textarea-error" : ""}`}
                                 placeholder="Enter your message here..."
                                 value={emailMessage}
                                 onChange={(e) => setEmailMessage(e.target.value)}
                             />
+                            {errors.emailMessage && (
+                                <label className="label">
+                                    <span className="label-text-alt text-error">{errors.emailMessage}</span>
+                                </label>
+                            )}
                         </div>
 
                         <div className="modal-action">

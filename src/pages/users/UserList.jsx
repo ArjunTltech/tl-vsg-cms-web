@@ -306,6 +306,7 @@ import { toast } from 'react-toastify';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import axiosInstance from '../../config/axios';
 import DeleteConfirmModal from '../../components/ui/modal/DeleteConfirmModal';
+import playNotificationSound from "../../utils/playNotification";
 
 // Enhanced Validation Schema using Yup
 const userSchema = yup.object().shape({
@@ -415,6 +416,7 @@ const UserList = () => {
         // Add mode
         const { isEditing, ...createData } = data;
         await axiosInstance.post('users/create', createData);
+        playNotificationSound()
         toast.success('User added successfully');
       }
       closeModal();

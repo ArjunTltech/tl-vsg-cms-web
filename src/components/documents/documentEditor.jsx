@@ -3,6 +3,7 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill/dist/quill.snow.css';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../config/axios';
+import playNotificationSound from '../../utils/playNotification';
 
 const DocumentEditor = () => {
   const [selectedOption, setSelectedOption] = useState('PRIVACY');
@@ -52,6 +53,7 @@ const DocumentEditor = () => {
       const response = await axiosInstance.post('/document/create-document', payload);
 
       if (response.status === 201) {
+        playNotificationSound()
         toast.success(`${selectedOption} document has been saved successfully!`);
       }
     } catch (error) {

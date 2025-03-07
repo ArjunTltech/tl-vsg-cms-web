@@ -6,6 +6,7 @@ import * as yup from 'yup';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axiosInstance from '../../config/axios';
+import playNotificationSound from '../../utils/playNotification';
 
 // Validation schema remains the same
 const mailConfigSchema = yup.object().shape({
@@ -82,6 +83,7 @@ const MailConfig = () => {
     try {
       if (configId) {
         await axiosInstance.put(`/config/email-config/${configId}`, data);
+        playNotificationSound()
         toast.update(toastId, {
           render: 'Email configuration updated successfully',
           type: 'success',

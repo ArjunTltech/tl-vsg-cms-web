@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../config/axios";
+import playNotificationSound from "../../utils/playNotification";
 
 function ClientForm({ onClientCreated, refreshClientList, initialData, mode, setIsDrawerOpen }) {
   const [title, setTitle] = useState("");
@@ -81,6 +82,7 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
             },
           }
         );
+        playNotificationSound()
         toast.success("Client updated successfully!");
       }
 
