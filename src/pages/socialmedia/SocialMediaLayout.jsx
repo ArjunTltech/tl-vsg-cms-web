@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import axiosInstance from '../../config/axios';
 import { toast } from 'react-toastify';
+import playNotificationSound from '../../utils/playNotification';
 
 const SocialMediaLayout = () => {
   // State for managing social links
@@ -102,6 +103,7 @@ const SocialMediaLayout = () => {
           }
         }));
         setEditing(null);
+        playNotificationSound()
         toast.success("Social media link updated successfully!");
       } else {
         throw new Error(response.data.message || "Failed to update");

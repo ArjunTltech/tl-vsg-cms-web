@@ -7,6 +7,7 @@ import BackgroundImage from '../../assets/images/bg-img.jpg';
 import { Eye, EyeOff, Mail, Lock, Loader, X } from 'lucide-react';
 import axiosInstance from '../../config/axios';
 import { useAuth } from '../../context/AuthContext';
+import playNotificationSound from '../../utils/playNotification';
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -52,6 +53,7 @@ function LoginPage() {
         try {
             const response = await axiosInstance.post('/auth/login', data);
             const { token, user } = response.data;
+            playNotificationSound()
             login(token, user.role, data.rememberMe);
             navigate('/');
         } catch (error) {

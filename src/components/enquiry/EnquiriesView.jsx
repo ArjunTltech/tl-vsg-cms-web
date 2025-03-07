@@ -18,6 +18,7 @@ import {
   Trash2,
   AlertTriangle
 } from "lucide-react";
+import playNotificationSound from "../../utils/playNotification";
 
 const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, itemName }) => {
   if (!isOpen) return null;
@@ -77,6 +78,7 @@ const EnquiryItem = ({ enquiry, onStatusChange, onDelete }) => {
     try {
       await axiosInstance.delete(`/enquiries/delete-enquiry/${enquiry.id}`);
       onDelete(enquiry.id);
+      playNotificationSound()
       toast.success("Enquiry deleted successfully!");
     } catch (error) {
       console.error("Error deleting Enquiry:", error);

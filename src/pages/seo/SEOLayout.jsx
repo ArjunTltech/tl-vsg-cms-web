@@ -4,6 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../config/axios';
+import playNotificationSound from '../../utils/playNotification';
 
 const schema = yup.object().shape({
   title: yup.object().shape({
@@ -129,6 +130,7 @@ const SeoLayout = () => {
       });
 
       if (response.status === 200) {
+        playNotificationSound()
         toast.success('SEO data saved successfully');
       }
     } catch (error) {

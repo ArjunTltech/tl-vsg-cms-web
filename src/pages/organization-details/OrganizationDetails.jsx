@@ -269,6 +269,7 @@ import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axiosInstance from '../../config/axios';
+import playNotificationSound from '../../utils/playNotification';
 
 const organizationSchema = yup.object().shape({
   email: yup.string()
@@ -376,7 +377,7 @@ const OrganizationDetails = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-  
+      playNotificationSound()
       toast.update(toastId, {
         render: 'Organization details saved successfully',
         type: 'success',

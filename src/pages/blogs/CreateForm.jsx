@@ -80,6 +80,7 @@ function BlogPostForm({ onBlogCreated ,initialData ,mode ,setIsDrawerOpen }) {
             "Content-Type": "multipart/form-data",
           },
         });
+        playNotificationSound()
         toast.success("Blog post created successfully!");
       } else if (mode === "edit" && initialData) {
         response = await axiosInstance.put(

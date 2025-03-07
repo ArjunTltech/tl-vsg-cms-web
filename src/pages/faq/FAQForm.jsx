@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../config/axios';
+import playNotificationSound from '../../utils/playNotification';
 
 function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen, faqs }) {
   const [faq, setFaq] = useState({
@@ -121,6 +122,7 @@ function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen, faqs }) {
 
         console.log("Creating new FAQ with order:", nextOrder);
         response = await axiosInstance.post("/qna/create-faq", newFAQ);
+        playNotificationSound()
         toast.success("FAQ created successfully!");
       } else if (mode === "edit" && initialData) {
         const updatedFAQ = {
@@ -129,6 +131,7 @@ function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen, faqs }) {
         };
         console.log("Updating FAQ with ID:", initialData.id);
         response = await axiosInstance.put(`/qna/update-faq/${initialData.id}`, updatedFAQ);
+        playNotificationSound()
         toast.success("FAQ updated successfully!");
       }
 
