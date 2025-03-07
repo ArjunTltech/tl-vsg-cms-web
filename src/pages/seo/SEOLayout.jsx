@@ -28,10 +28,10 @@ const schema = yup.object().shape({
 });
 
 const SeoLayout = () => {
-  const pages = ['home', 'about', 'services', 'faq', 'testimonials', 'casestudy', 'blog', 'contact', 'privacy-policy', 'terms'];
+  const pages = ['home', 'about', 'services', 'faq', 'testimonials', 'contact', 'privacy-policy', 'terms'];
   const [selectedPage, setSelectedPage] = React.useState('home');
   const [isLoading, setIsLoading] = React.useState(false);
-
+  
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -113,7 +113,7 @@ const SeoLayout = () => {
   }, [selectedPage, reset]);
 
   const onSubmit = async (data) => {
-    try {
+    try {      
       const response = await axiosInstance.post(`seo/upsert/${selectedPage}`, {
         pageTitle: selectedPage,
         title: data.title.default,
