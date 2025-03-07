@@ -268,6 +268,7 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
                         );
                     })}
                 </nav>
+                
             </aside>
 
             {/* Add custom styles for Tippy */}

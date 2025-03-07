@@ -240,7 +240,6 @@ const SeoLayout = () => {
 
           <section className="space-y-4 bg-base-200 p-4 rounded-lg">
             <h3 className="text-lg font-semibold text-neutral-content">Open Graph
-            <span className="text-error pl-1">*</span>
             </h3>
 
             <div className="space-y-4">

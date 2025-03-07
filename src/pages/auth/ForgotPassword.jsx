@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Mail, Lock, XIcon, CheckCircleIcon } from 'lucide-react';
+import { Mail, Lock, XIcon, CheckCircleIcon, EyeOffIcon, EyeIcon } from 'lucide-react';
 import axiosInstance from '../../config/axios';
 import OTPInput from 'react-otp-input';
 import BackgroundImage from '../../assets/images/bg-img.jpg';
@@ -24,7 +24,9 @@ const otpSchema = yup.object({
 const passwordSchema = yup.object({
     newPassword: yup
         .string()
-        .min(6, 'Password must be at least 6 characters long')
+        .min(8, 'New password must be at least 8 characters long')
+        .matches(/[A-Z]/, 'New password must contain at least one uppercase letter')
+        .matches(/[!@#$%^&*(),.?":{}|<>]/, 'New password must contain at least one special character')
         .required('New password is required'),
     confirmNewPassword: yup
         .string()
@@ -39,6 +41,8 @@ function ForgotPassword() {
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState('');
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
+    const [confirmPassword, setConfirmPassword] = useState(false);
 
     const {
         control,
@@ -198,7 +202,7 @@ function ForgotPassword() {
                         </button>
 
                         <p className="mt-2 text-center text-sm text-gray-300">
-                        Think you don’t need a reset? {' '}
+                            Think you don’t need a reset? {' '}
                             <Link to="/login" className="font-medium text-blue-300 hover:text-blue-500">Login</Link>
                         </p>
                     </form>
@@ -275,20 +279,29 @@ function ForgotPassword() {
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <Lock className="h-5 w-5 text-gray-400" />
                                 </div>
-                                <Controller
-                                    name="newPassword"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <input
-                                            {...field}
-                                            type="password"
-                                            className={`appearance-none block w-full pl-10 px-3 py-2 border rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm 
-                                            text-slate-900 placeholder:text-slate-900
-                                            ${errors.newPassword ? 'border-red-500' : 'border-gray-300'}`}
-                                            placeholder="Enter your new password"
-                                        />
-                                    )}
-                                />
+                                <div className="relative">
+                                    <Controller
+                                        name="newPassword"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <input
+                                                {...field}
+                                                type={showPassword ? "text" : "password"}
+                                                className={`appearance-none block w-full pl-10 pr-10 px-3 py-2 border rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm 
+            text-slate-900 placeholder:text-slate-900
+            ${errors.newPassword ? "border-red-500" : "border-gray-300"}`}
+                                                placeholder="Enter your new password"
+                                            />
+                                        )}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute inset-y-0 right-3 flex items-center"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOffIcon className='text-base-300' size={20} /> : <EyeIcon className='text-base-300' size={20} />}
+                                    </button>
+                                </div>
                             </div>
                             <div className='absolute'>
                                 {errors.newPassword && (
@@ -303,7 +316,7 @@ function ForgotPassword() {
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <Lock className="h-5 w-5 text-gray-400" />
                                 </div>
-                                <Controller
+                                {/* <Controller
                                     name="confirmNewPassword"
                                     control={control}
                                     render={({ field }) => (
@@ -316,7 +329,30 @@ function ForgotPassword() {
                                             placeholder="Confirm your new password"
                                         />
                                     )}
-                                />
+                                /> */}
+                                <div className="relative">
+                                    <Controller
+                                        name="confirmNewPassword"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <input
+                                                {...field}
+                                                type={confirmPassword ? "text" : "password"}
+                                                className={`appearance-none block w-full pl-10 pr-10 px-3 py-2 border rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm 
+            text-slate-900 placeholder:text-slate-900
+            ${errors.confirmNewPassword ? "border-red-500" : "border-gray-300"}`}
+                                                placeholder="Confirm your new password"
+                                            />
+                                        )}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute inset-y-0 right-3 flex items-center"
+                                        onClick={() => setConfirmPassword(!confirmPassword)}
+                                    >
+                                        {confirmPassword ? <EyeOffIcon className='text-base-300' size={20} /> : <EyeIcon className='text-base-300' size={20} />}
+                                    </button>
+                                </div>
                             </div>
                             <div className='absolute flex items-center'>
                                 {errors.confirmNewPassword && <p className="text-red-500 text-xs ml-3 mt-1">{errors.confirmNewPassword.message}</p>}
@@ -332,6 +368,16 @@ function ForgotPassword() {
                         </button>
                     </form>
                 )}
+            </div>
+            <div className="text-center mt-6 absolute z-[999] bottom-10 ">
+                <a
+                    href="https://www.tltechnologies.net/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-300 text-sm bg-black/70 p-3"
+                >
+                    © 2025 <span className="text-red-500 ">TL TECHNOLOGIES PRIVATE LIMITED</span> All rights reserved.
+                </a>
             </div>
         </div>
     );

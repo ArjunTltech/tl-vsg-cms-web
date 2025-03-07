@@ -70,7 +70,7 @@ function LoginPage() {
             <div className="max-w-md w-full space-y-8 bg-black/70 z-[999] p-8 rounded-xl shadow-lg">
                 <div className="flex justify-between flex-wrap"><div className="text-center">
                     <h2 className="text-3xl font-extrabold text-gray-200">Welcome back</h2>
-                    <p className="mt-2 text-sm text-gray-200">sign in to your account</p>
+                    <p className="mt-2 text-sm text-gray-200">Sign in to your account</p>
                 </div>
                     <img src="https://www.vsgenxsolutions.com/_next/static/media/logo-1.ded65dd8.png" className='h-14 rounded-sm w-auto' alt="" /></div>
 
@@ -203,7 +203,19 @@ function LoginPage() {
                     </p> */}
                 </form>
             </div>
+                <div className="text-center mt-6 absolute z-[999] bottom-10 ">
+            <a
+                href="https://www.tltechnologies.net/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 text-sm bg-black/70 p-3"
+            >
+                © 2025 <span className="text-red-500 ">TL TECHNOLOGIES PRIVATE LIMITED</span> All rights reserved.
+            </a>
         </div>
+            
+        </div>
+        
     );
 }
 
