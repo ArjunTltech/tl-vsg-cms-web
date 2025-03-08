@@ -361,15 +361,23 @@ const UserList = () => {
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      const response = await axiosInstance.get('users/view');
-      setUsers(response.data.users);
+      const response = await axiosInstance.get("users/view");
+  
+      // Sort users alphabetically by name (case-insensitive)
+      const sortedUsers = response.data.users.sort((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+      );
+  
+      setUsers(sortedUsers);
     } catch (error) {
-      toast.error('Failed to load users');
+      toast.error("Failed to load users");
       console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
+  
+  
 
   useEffect(() => {
     fetchUsers();
