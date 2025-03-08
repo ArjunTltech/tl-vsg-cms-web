@@ -38,12 +38,12 @@ const DocumentEditor = () => {
       if (wordCount < 200) {
         toast.error("Content must have at least 200 words.");
         return
-      } else if (wordCount > 570 && selectedOption=="PRIVACY") {
-        toast.error("Content cannot exceed 570 words.");
+      } else if (wordCount > 510 && selectedOption=="PRIVACY") {
+        toast.error("Content cannot exceed 510 words.");
         return 
       } 
-       else if (wordCount > 450 && selectedOption=="TERMS") {
-        toast.error("Content cannot exceed 450 words.");
+       else if (wordCount > 370 && selectedOption=="TERMS") {
+        toast.error("Content cannot exceed 370 words.");
         return 
       } 
       else if(wordCount.length ==0){
