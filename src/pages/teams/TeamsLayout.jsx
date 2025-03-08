@@ -26,6 +26,7 @@ const TeamManagement = () => {
     linkedin: '',
     email: '',
     order: '',
+    image:'',
     isActive: true
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -52,8 +53,9 @@ const TeamManagement = () => {
     try {
       setIsLoading(true);
       const response = await axiosInstance.get('/team/all-team');
-      setTeamMembers(response.data.team);
-      setIsLoading(false);
+      const sortedTeam = response.data.team.sort((a, b) => a.order - b.order);
+
+      setTeamMembers(sortedTeam); setIsLoading(false);
     } catch (error) {
       console.error('Error fetching team members:', error);
       setIsLoading(false);
@@ -72,6 +74,7 @@ const TeamManagement = () => {
       linkedin: '',
       email: '',
       order: '',
+      image:'',
       isActive: true
     });
     setSelectedFile(null);
@@ -79,7 +82,8 @@ const TeamManagement = () => {
     setIsDrawerOpen(true);
     setErrors({})
   };
-
+  console.log(formData);
+  
   const handleEdit = (member) => {
     setFormData(member);
     setIsEditing(true);
@@ -104,89 +108,103 @@ const TeamManagement = () => {
   };
   const validateData = (data) => {
     const errors = {};
-  
+
     const namePattern = /^[A-Za-z\s]+$/;
     if (!data.name || data.name.trim().length < 2 || data.name.trim().length > 50 || !namePattern.test(data.name.trim())) {
       errors.name = "Name must be between 2 and 50 characters long and contain only letters.";
     }
-  
+
     if (!data.position || data.position.trim().length < 2 || data.position.trim().length > 50) {
       errors.position = "Position must be between 2 and 50 characters long.";
     }
-  
+
     if (!data.bio) {
       errors.bio = "Bio is required.";
     } else {
       const plainTextBio = data.bio.replace(/<[^>]*>/g, '').trim(); // Remove HTML tags
       const wordCount = plainTextBio.split(/\s+/).length; // Count words
-  
+
       if (wordCount < 100 || wordCount > 310) {
         errors.bio = "Bio must be between 100 and 310 words.";
       }
     }
-  
+
     const urlPattern = /^(https?:\/\/)?([\w\-]+\.)+[\w]{2,}(\/\S*)?$/;
     if (!data.linkedin || !urlPattern.test(data.linkedin)) {
       errors.linkedin = "LinkedIn must be a valid URL.";
     }
-  
+
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!data.email || !emailPattern.test(data.email)) {
       errors.email = "Email must be a valid email address.";
     }
-  
+
     if (!data.order || isNaN(data.order)) {
       errors.order = "Order must be a valid number.";
     }
-  
+
     if (typeof data.isActive !== "boolean") {
       errors.isActive = "isActive must be a boolean value.";
     }
-  
+
     return errors;
   };
-  
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateData(formData);
     const newErrors = { ...validationErrors };
-  
+
     // Image validation
+
     if (!selectedFile) {
+      
       const imgPattern = /\.(jpeg|jpg|gif|png|svg)$/i;
+    if(!isEditing){
       if (!formData.img || !imgPattern.test(formData.img)) {
         newErrors.img = "Image must be a valid URL and should be in JPG, JPEG, PNG, GIF, or SVG format.";
       } else {
         delete newErrors.img; // ✅ Remove error if the image is valid
       }
     }
-  
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-  
+
     setErrors({}); // ✅ Clear all errors when validation passes
-  
+
     const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
       formDataToSend.append(key, formData[key]);
     });
-  
+
     if (selectedFile) {
       formDataToSend.append("image", selectedFile);
     }
-  
+
     try {
       setIsLoading(true);
       if (isEditing) {
         await axiosInstance.put(`/team/update-team/${formData.id}`, formDataToSend);
         toast.success("Team member updated successfully!");
+        setSelectedFile(null)
+
       } else {
-        await axiosInstance.post("/team/add-team", formDataToSend);
-        toast.success("Team member added successfully!");
+        if (teamMembers.length < 4) {
+          await axiosInstance.post("/team/add-team", formDataToSend);
+          toast.success("Team member added successfully!");
+          setSelectedFile(null)
+          
+        }
+        else {
+          toast.error("You can only add up to 4 team members.");
+        }
       }
+
       await fetchTeamMembers();
       setIsDrawerOpen(false);
     } catch (error) {
@@ -196,12 +214,12 @@ const TeamManagement = () => {
       setIsLoading(false);
     }
   };
- 
-  
+
+
   const handleRemoveImage = () => {
     setSelectedFile(null);
     setFormData({ ...formData, img: "" });
-  
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -427,13 +445,13 @@ const TeamManagement = () => {
         </button>
       </div>
 
-      {teamMembers.length>0?(<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {teamMembers.length > 0 ? (<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {teamMembers.map((member) => (
           <TeamMemberCard key={member.id} member={member} />
         ))}
-      </div>):( <div className="w-full h-96  flex justify-center items-center">
-            <p>No Team members available</p>
-          </div>)}
+      </div>) : (<div className="w-full h-96  flex justify-center items-center">
+        <p>No Team members available</p>
+      </div>)}
 
       {/* Add/Edit Form Drawer */}
       {isDrawerOpen && (
@@ -509,7 +527,7 @@ const TeamManagement = () => {
                     margin-bottom: 2rem;
                   }
                 `}</style>
-           {errors.bio && <p className="text-error">{errors.bio}</p>}
+                {errors.bio && <p className="text-error">{errors.bio}</p>}
 
               </div>
 
@@ -538,54 +556,85 @@ const TeamManagement = () => {
                 {errors.email && <p className="text-error">{errors.email}</p>}
 
               </div>
-
               <div>
-                <label className="block text-sm font-medium mb-1">Display Order  <span className="text-error">*</span></label>
-                <input
-                  type="number"
-                  placeholder="Order"
+                <label className="block text-sm font-medium mb-1">
+                  Display Order <span className="text-error">*</span>
+                </label>
+               {isEditing? <select
                   value={formData.order}
-                  onChange={(e) => setFormData({ ...formData, order: e.target.value })}
-                  className="input input-bordered w-full"
-                />
+                  onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
+                  className="select select-bordered w-full"
+                >
+                  <option value="" disabled>Select Order</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                </select>:<select
+    value={formData.order}
+    onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
+    className="select select-bordered w-full"
+  >
+    <option value="" disabled>Select Order</option>
+    {[1, 2, 3, 4].map(orderValue => {
+      // Check if this order is already taken by another member
+      const isOrderTaken = teamMembers.some(member => 
+        member.order === orderValue && 
+        member.id !== (formData.id || '') // Exclude current member when editing
+      );
+      
+      // Only show this option if it's not taken or it's the current value
+      if (!isOrderTaken || formData.order === orderValue) {
+        return (
+          <option key={orderValue} value={orderValue}>
+            {orderValue}
+          </option>
+        );
+      }
+      return null;
+    })}
+  </select>}
                 {errors.order && <p className="text-error">{errors.order}</p>}
-
               </div>
 
-              <div>
-  <label className="block text-sm font-medium mb-1">
-    Profile Image <span className="text-error">*</span>
-  </label>
-  <input
-    type="file"
-    ref={fileInputRef}
-    onChange={(e) => {
-      setSelectedFile(e.target.files[0]);
-      setFormData({ ...formData, img: URL.createObjectURL(e.target.files[0]) });
-    }}
-    className="file-input file-input-bordered w-full"
-    accept="image/*"
-  />
-  {errors.img && <p className="text-error">{errors.img}</p>}
 
-  {/* Image Preview */}
-  {selectedFile && (
-    <div className="mt-5 flex items-center justify-center gap-4">
-      <img
-        src={URL.createObjectURL(selectedFile)}
-        alt="Preview"
-        className="w-80 h-80 rounded-lg border object-contain"
-      />
-      <button
-        type="button"
-        className="btn btn-sm btn-error"
-        onClick={handleRemoveImage}
-      >
-        Remove
-      </button>
-    </div>
-  )}
-</div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Profile Image <span className="text-error">*</span>
+                </label>
+                <input
+
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={(e) => {
+                    setSelectedFile(e.target.files[0]);
+                    setFormData({ ...formData, img: URL.createObjectURL(e.target.files[0]) });
+                  }}
+                  className="file-input file-input-bordered w-full"
+                  accept="image/*"
+                />
+                {errors.img && <p className="text-error">{errors.img}</p>}
+
+                {/* Image Preview */}
+                    {(selectedFile || (isEditing && formData.image)) && (
+          <div className="mt-5 flex items-center justify-center gap-4">
+            <img
+              src={selectedFile ? URL.createObjectURL(selectedFile) : formData.image}
+              alt="Preview"
+              className="w-80 h-80 rounded-lg border object-contain"
+            />
+            {selectedFile && (
+              <button
+                type="button"
+                className="btn btn-sm btn-error"
+                onClick={handleRemoveImage}
+              >
+                Remove
+              </button>
+            )}
+          </div>
+        )}
+              </div>
 
 
               <div className="flex justify-end gap-2 pt-4">
