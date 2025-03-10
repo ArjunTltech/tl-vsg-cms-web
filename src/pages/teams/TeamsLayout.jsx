@@ -26,7 +26,7 @@ const TeamManagement = () => {
     linkedin: '',
     email: '',
     order: '',
-    image:'',
+    image: '',
     isActive: true
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -74,7 +74,7 @@ const TeamManagement = () => {
       linkedin: '',
       email: '',
       order: '',
-      image:'',
+      image: '',
       isActive: true
     });
     setSelectedFile(null);
@@ -83,7 +83,7 @@ const TeamManagement = () => {
     setErrors({})
   };
   console.log(formData);
-  
+
   const handleEdit = (member) => {
     setFormData(member);
     setIsEditing(true);
@@ -124,8 +124,8 @@ const TeamManagement = () => {
       const plainTextBio = data.bio.replace(/<[^>]*>/g, '').trim(); // Remove HTML tags
       const wordCount = plainTextBio.split(/\s+/).length; // Count words
 
-      if (wordCount < 100 || wordCount > 310) {
-        errors.bio = "Bio must be between 100 and 310 words.";
+      if (wordCount < 50 || wordCount > 310) {
+        errors.bio = "Bio must be between 50 and 310 words.";
       }
     }
 
@@ -159,15 +159,15 @@ const TeamManagement = () => {
     // Image validation
 
     if (!selectedFile) {
-      
+
       const imgPattern = /\.(jpeg|jpg|gif|png|svg)$/i;
-    if(!isEditing){
-      if (!formData.img || !imgPattern.test(formData.img)) {
-        newErrors.img = "Image must be a valid URL and should be in JPG, JPEG, PNG, GIF, or SVG format.";
-      } else {
-        delete newErrors.img; // ✅ Remove error if the image is valid
+      if (!isEditing) {
+        if (!formData.img || !imgPattern.test(formData.img)) {
+          newErrors.img = "Image must be a valid URL and should be in JPG, JPEG, PNG, GIF, or SVG format.";
+        } else {
+          delete newErrors.img; // ✅ Remove error if the image is valid
+        }
       }
-    }
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -198,7 +198,7 @@ const TeamManagement = () => {
           await axiosInstance.post("/team/add-team", formDataToSend);
           toast.success("Team member added successfully!");
           setSelectedFile(null)
-          
+
         }
         else {
           toast.error("You can only add up to 4 team members.");
@@ -435,6 +435,17 @@ const TeamManagement = () => {
     );
   };
 
+
+  const [theme, setTheme] = useState(
+    typeof window !== "undefined" ? localStorage.getItem("theme") || "light" : "light"
+  );
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setTheme(localStorage.getItem("theme") || "light");
+    }
+  }, []);
+
   return (
     <div className="p-6">
       <div className="mb-6 flex justify-between items-center">
@@ -499,34 +510,48 @@ const TeamManagement = () => {
               {/* ReactQuill Editor for Bio with contained styling */}
               <div className="quill-container">
                 <label className="block text-sm font-medium mb-1">Bio  <span className="text-error">*</span></label>
-                <div className="rounded-md border border-gray-300">
+                <div className={`quill-container ${theme === "dark" ? "dark-mode" : "light-mode"}`}>
                   <ReactQuill
                     theme="snow"
                     value={formData.bio || ''}
                     onChange={(content) => setFormData({ ...formData, bio: content })}
                     modules={quillModules}
                     formats={quillFormats}
+                    className="custom-quill"
                     placeholder="Enter team member biography..."
                   />
+
                 </div>
                 <style jsx global>{`
-                  .quill-container .ql-container {
-                    min-height: 150px;
-                    max-height: 300px;
-                    overflow-y: auto;
-                  }
-                  .quill-container .ql-editor {
-                    min-height: 150px;
-                  }
-                  /* Fix responsive issues */
-                  .quill-container .ql-toolbar {
-                    flex-wrap: wrap;
-                  }
-                  /* Add margin to separate from next field */
-                  .quill-container {
-                    margin-bottom: 2rem;
-                  }
-                `}</style>
+        .quill-container .ql-container {
+          min-height: 150px;
+          max-height: 300px;
+          overflow-y: auto;
+        }
+        .quill-container .ql-editor {
+          min-height: 150px;
+        }
+        /* Fix responsive issues */
+        .quill-container .ql-toolbar {
+          flex-wrap: wrap;
+        }
+        /* Add margin to separate from next field */
+        .quill-container {
+          margin-bottom: 2rem;
+        }
+
+        /* Light Mode Styles */
+        .light-mode .ql-editor::before {
+          color: gray !important; /* Light mode placeholder color */
+          opacity: 0.6;
+        }
+
+        /* Dark Mode Styles */
+        .dark-mode .ql-editor::before {
+          color: white !important; /* Dark mode placeholder color */
+          opacity: 0.6;
+        }
+      `}</style>
                 {errors.bio && <p className="text-error">{errors.bio}</p>}
 
               </div>
@@ -560,7 +585,7 @@ const TeamManagement = () => {
                 <label className="block text-sm font-medium mb-1">
                   Display Order <span className="text-error">*</span>
                 </label>
-               {isEditing? <select
+                {isEditing ? <select
                   value={formData.order}
                   onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
                   className="select select-bordered w-full"
@@ -570,30 +595,30 @@ const TeamManagement = () => {
                   <option value="2">2</option>
                   <option value="3">3</option>
                   <option value="4">4</option>
-                </select>:<select
-    value={formData.order}
-    onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
-    className="select select-bordered w-full"
-  >
-    <option value="" disabled>Select Order</option>
-    {[1, 2, 3, 4].map(orderValue => {
-      // Check if this order is already taken by another member
-      const isOrderTaken = teamMembers.some(member => 
-        member.order === orderValue && 
-        member.id !== (formData.id || '') // Exclude current member when editing
-      );
-      
-      // Only show this option if it's not taken or it's the current value
-      if (!isOrderTaken || formData.order === orderValue) {
-        return (
-          <option key={orderValue} value={orderValue}>
-            {orderValue}
-          </option>
-        );
-      }
-      return null;
-    })}
-  </select>}
+                </select> : <select
+                  value={formData.order}
+                  onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
+                  className="select select-bordered w-full"
+                >
+                  <option value="" disabled>Select Order</option>
+                  {[1, 2, 3, 4].map(orderValue => {
+                    // Check if this order is already taken by another member
+                    const isOrderTaken = teamMembers.some(member =>
+                      member.order === orderValue &&
+                      member.id !== (formData.id || '') // Exclude current member when editing
+                    );
+
+                    // Only show this option if it's not taken or it's the current value
+                    if (!isOrderTaken || formData.order === orderValue) {
+                      return (
+                        <option key={orderValue} value={orderValue}>
+                          {orderValue}
+                        </option>
+                      );
+                    }
+                    return null;
+                  })}
+                </select>}
                 {errors.order && <p className="text-error">{errors.order}</p>}
               </div>
 
@@ -616,24 +641,24 @@ const TeamManagement = () => {
                 {errors.img && <p className="text-error">{errors.img}</p>}
 
                 {/* Image Preview */}
-                    {(selectedFile || (isEditing && formData.image)) && (
-          <div className="mt-5 flex items-center justify-center gap-4">
-            <img
-              src={selectedFile ? URL.createObjectURL(selectedFile) : formData.image}
-              alt="Preview"
-              className="w-80 h-80 rounded-lg border object-contain"
-            />
-            {selectedFile && (
-              <button
-                type="button"
-                className="btn btn-sm btn-error"
-                onClick={handleRemoveImage}
-              >
-                Remove
-              </button>
-            )}
-          </div>
-        )}
+                {(selectedFile || (isEditing && formData.image)) && (
+                  <div className="mt-5 flex items-center justify-center gap-4">
+                    <img
+                      src={selectedFile ? URL.createObjectURL(selectedFile) : formData.image}
+                      alt="Preview"
+                      className="w-80 h-80 rounded-lg border object-contain"
+                    />
+                    {selectedFile && (
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-error"
+                        onClick={handleRemoveImage}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
 
