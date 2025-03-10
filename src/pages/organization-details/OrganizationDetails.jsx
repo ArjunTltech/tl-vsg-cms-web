@@ -309,15 +309,12 @@ const OrganizationDetails = () => {
     mode: 'onChange',
   });
 
-  // Fetch existing organization details
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axiosInstance.get('/company/settings');
     
-        const organizationData = response.data.data;
-        console.log(organizationData);
-        
+        const organizationData = response.data.data;        
         reset({
           email: organizationData.email || '',
           location: organizationData.location || '',
