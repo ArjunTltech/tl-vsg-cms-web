@@ -270,6 +270,10 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axiosInstance from '../../config/axios';
 import playNotificationSound from '../../utils/playNotification';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import { Controller } from 'react-hook-form';
+import { useTheme } from '../../context/ThemeContext';
 
 const organizationSchema = yup.object().shape({
   email: yup.string()
@@ -299,6 +303,7 @@ const OrganizationDetails = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    control,
   } = useForm({
     resolver: yupResolver(organizationSchema),
     mode: 'onChange',
@@ -311,7 +316,8 @@ const OrganizationDetails = () => {
         const response = await axiosInstance.get('/company/settings');
     
         const organizationData = response.data.data;
-      
+        console.log(organizationData);
+        
         reset({
           email: organizationData.email || '',
           location: organizationData.location || '',
@@ -319,7 +325,6 @@ const OrganizationDetails = () => {
           phone: organizationData.phone || ''
         });
         
-        // Set logo preview if exists
         if (organizationData.logo) {
           setImagePreview(organizationData.logo);
         }
@@ -409,33 +414,140 @@ const OrganizationDetails = () => {
     }
   };
 
-  // Reusable form field component to reduce repetition
+  // const FormField = ({ 
+  //   label, 
+  //   name, 
+  //   register, 
+  //   errors, 
+  //   type = 'text', 
+  //   placeholder,
+  //   mandatory = false 
+  // }) => (
+  //   <div className="form-control">
+  //     <label className="label">
+  //       <span className="label-text">
+  //         {label} 
+  //         {mandatory && <span className="text-error ml-1">*</span>}
+  //       </span>
+  //     </label>
+  //     <input
+  //       type={type}
+  //       placeholder={placeholder}
+  //       className={`input input-bordered ${errors[name] ? 'input-error' : ''}`}
+  //       {...register(name)}
+  //     />
+  //     {errors[name] && <span className="text-red-500 text-sm mt-1">{errors[name].message}</span>}
+  //   </div>
+  // );
+  
   const FormField = ({ 
     label, 
     name, 
     register, 
+    control,
     errors, 
     type = 'text', 
     placeholder,
-    mandatory = false 
-  }) => (
-    <div className="form-control">
-      <label className="label">
-        <span className="label-text">
-          {label} 
-          {mandatory && <span className="text-error ml-1">*</span>}
-        </span>
-      </label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        className={`input input-bordered ${errors[name] ? 'input-error' : ''}`}
-        {...register(name)}
-      />
-      {errors[name] && <span className="text-red-500 text-sm mt-1">{errors[name].message}</span>}
-    </div>
-  );
+    mandatory = false
+  }) => {
+    // Get the theme from your context
+    const { theme } = useTheme();
+    
+    const isDarkTheme = theme === "dark";
+    
+    // Custom dropdown styles based on theme
+    const dropdownStyles = {
+      backgroundColor: isDarkTheme ? '#1a1a1a' : '#fff', // Ensures full dark theme support
+      color: isDarkTheme ? '#fff' : '#000',
+      border: `1px solid ${isDarkTheme ? '#444' : '#ccc'}`,
+    };
+    // Add hover styles for dropdown items
+    const dropdownItemStyles = `
+  .react-tel-input .flag-dropdown:hover, 
+  .react-tel-input .country-list .country:hover,
+  .react-tel-input .country-list .country.highlight { 
+    background-color: ${isDarkTheme ? '#444' : '#e0e0e0'} !important; 
+    color: ${isDarkTheme ? '#fff' : '#000'} !important; /* Ensure visible text color */
+  }
+`;
 
+    // Custom search styles based on theme
+    // const searchStyles = {
+    //   backgroundColor: isDarkTheme ? '#222' : '#f5f5f5', // Dark background in dark mode
+    //   color: isDarkTheme ? '#fff' : '#000',
+    //   borderColor: isDarkTheme ? '#444' : '#ddd'
+    // };
+    
+    return (
+      <div className="form-control mb-4">
+            <style>{dropdownItemStyles}</style>
+
+        <label className="label">
+          <span className="label-text">
+            {label} 
+            {mandatory && <span className="text-error ml-1">*</span>}
+          </span>
+        </label>
+        
+        {name === "phone" ? (
+          <div>
+            <Controller
+              name={name}
+              control={control}
+              render={({ field }) => (
+                <PhoneInput
+                  country={'in'}
+                  enableSearch={false}
+                  disableSearchIcon={true}
+                  value={field.value}
+                  onChange={(phone) => field.onChange(phone)}
+                  inputProps={{
+                    name: field.name,
+                    placeholder: placeholder || 'Enter phone number',
+                    className: `input input-bordered ${errors[name] ? 'input-error' : ''}`
+                  }}
+                  containerStyle={{
+                    width: '100%'
+                  }}
+                  buttonStyle={{
+                    border: 'none',
+                    background: 'transparent',
+                    position: 'absolute',
+                    left: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)'
+                  }}
+                  inputStyle={{
+                    width: '100%',
+                    height: '50px',
+                    paddingLeft: '60px',
+                    paddingRight: '16px',
+                    borderRadius: 'var(--rounded-btn, 0.5rem)',
+                    color: 'currentColor',
+                    fontSize: '1rem'
+                  }}
+                  dropdownStyle={dropdownStyles}
+                  // searchStyle={searchStyles}
+                  containerClass={isDarkTheme ? 'dark-theme-phone' : 'light-theme-phone'}
+                />
+              )}
+            />
+            {errors[name] && <span className="text-red-500 text-sm mt-1">{errors[name].message}</span>}
+          </div>
+        ) : (
+          <>
+            <input
+              type={type}
+              placeholder={placeholder}
+              className={`input input-bordered ${errors[name] ? 'input-error' : ''} h-[50px] px-4 text-base`}
+              {...register(name)}
+            />
+            {errors[name] && <span className="text-red-500 text-sm mt-1">{errors[name].message}</span>}
+          </>
+        )}
+      </div>
+    );
+  };
   return (
     <div className="p-6 bg-base-100 rounded-lg space-y-6">
       <div className="flex items-center gap-3">
@@ -488,7 +600,6 @@ const OrganizationDetails = () => {
               </div>
             </div>
 
-            {/* Other Form Fields */}
             <FormField 
               label="Email" 
               name="email" 
@@ -502,6 +613,7 @@ const OrganizationDetails = () => {
               label="Phone" 
               name="phone" 
               register={register} 
+              control={control}
               errors={errors} 
               placeholder="Ex: 1234567890"
               mandatory={true}
