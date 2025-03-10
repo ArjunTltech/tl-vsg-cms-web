@@ -114,7 +114,7 @@ const EnquiryItem = ({ enquiry, onStatusChange, onDelete }) => {
                   </span>
                   <span className="flex items-center gap-1">
                     <Phone className="w-4 h-4" />
-                    {enquiry.phoneNumber}
+                    +{enquiry.phoneNumber}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
@@ -381,7 +381,14 @@ const EnquiriesView = () => {
       queryParams.append('limit', filters.limit.toString());
 
       const response = await axiosInstance.get(`/enquiries/get-all-enquiries?${queryParams}`);
-      setEnquiries(response.data.enquiries);
+const formattedEnquiries = response.data.enquiries.map((enquiry) => ({
+  ...enquiry,
+  phoneNumber: enquiry.phoneNumber.length > 2 
+    ? enquiry.phoneNumber.slice(0, 2) + " " + enquiry.phoneNumber.slice(2) 
+    : enquiry.phoneNumber,
+}));
+
+setEnquiries(formattedEnquiries);   
       setPagination(response.data.pagination);
     } catch (error) {
       console.error("Failed to fetch enquiries", error);
