@@ -154,29 +154,29 @@ function Header({ onToggleSidebar, isCollapsed }) {
         </div>
 
         {/* Breadcrumb and Navigation */}
-        <div className="hidden lg:flex items-center space-x-4 flex-1 justify-center">
-          <button
-            onClick={handleBack}
-            disabled={historyStack.length <= 1}
-            className="flex items-center p-2 bg-base-300 rounded-lg text-neutral-content hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <BsChevronDoubleLeft className="w-5 h-5" />
-            <span className="ml-1">Back</span>
-          </button>
-          <div className="flex items-center text-sm font-medium text-neutral-content px-4">
-            <span className="text-lg font-bold italic text-center capitalize">
-              {location.pathname === "/" ? "Home" : location.pathname.split("/").slice(-1)[0]}
-            </span>
-          </div>
-          <button
-            onClick={handleForward}
-            disabled={forwardStack.length === 0}
-            className="flex items-center p-2 bg-base-300 rounded-lg text-neutral-content hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span className="mr-1">Forward</span>
-            <BsChevronDoubleRight className="w-5 h-5" />
-          </button>
-        </div>
+          {/* <div className="hidden lg:flex items-center space-x-4 flex-1 justify-center">
+            <button
+              onClick={handleBack}
+              disabled={historyStack.length <= 1}
+              className="flex items-center p-2 bg-base-300 rounded-lg text-neutral-content hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <BsChevronDoubleLeft className="w-5 h-5" />
+              <span className="ml-1">Back</span>
+            </button>
+            <div className="flex items-center text-sm font-medium text-neutral-content px-4">
+              <span className="text-lg font-bold italic text-center capitalize">
+                {location.pathname === "/" ? "Home" : location.pathname.split("/").slice(-1)[0]}
+              </span>
+            </div>
+            <button
+              onClick={handleForward}
+              disabled={forwardStack.length === 0}
+              className="flex items-center p-2 bg-base-300 rounded-lg text-neutral-content hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="mr-1">Forward</span>
+              <BsChevronDoubleRight className="w-5 h-5" />
+            </button>
+          </div> */}
 
         {/* Mobile Title */}
         <div className="lg:hidden flex-1 text-center">

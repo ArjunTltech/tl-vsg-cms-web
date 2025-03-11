@@ -170,6 +170,8 @@ const EnquiriesFilter = ({ onFilterChange, onDateRangeChange, filters, isVisible
     filters.endDate ? parseISO(filters.endDate) : null
   );
   const [status, setStatus] = useState(filters.status || "");
+  const [error, setError] = useState("");
+  const infoMessage = "Example: If you select March 3, the end date will be automatically set to March 4.";
 
   useEffect(() => {
     // Update local state when filters prop changes
@@ -187,6 +189,7 @@ const EnquiriesFilter = ({ onFilterChange, onDateRangeChange, filters, isVisible
   };
 
   const handleEndDateChange = (date) => {
+    
     setLocalEndDate(date);
     // Only trigger date range change if the date is valid
     if (isValid(date)) {
@@ -201,18 +204,23 @@ const EnquiriesFilter = ({ onFilterChange, onDateRangeChange, filters, isVisible
 
   const handleApplyFilter = () => {
     // Ensure both dates are valid before applying
+    if (!localStartDate || !localEndDate) {
+      setError("Please select both start and end dates.");
+      return;
+    }
     const startDateFormatted = localStartDate && isValid(localStartDate)
       ? format(localStartDate, "yyyy-MM-dd")
       : "";
     const endDateFormatted = localEndDate && isValid(localEndDate)
       ? format(localEndDate, "yyyy-MM-dd")
       : "";
-
+setError("")
     onDateRangeChange("startDate", startDateFormatted);
     onDateRangeChange("endDate", endDateFormatted);
   };
 
   const handleClearFilter = () => {
+    
     setLocalStartDate(null);
     setLocalEndDate(null);
     setStatus("");
@@ -279,6 +287,10 @@ const EnquiriesFilter = ({ onFilterChange, onDateRangeChange, filters, isVisible
               </button>
             </div>
           </div>
+          <p className="text-gray-500 text-sm mt-2">
+  Example: If you want to get data for March 3, set the start date as <b>March 3</b> and the end date as <b>March 4</b>.
+</p>          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+
         </div>
       </div>
     </div>

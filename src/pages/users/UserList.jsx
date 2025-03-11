@@ -399,7 +399,7 @@ const UserList = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        role: 'user',
+        role: '',
         isEditing: false
       });
     }
@@ -430,7 +430,9 @@ const UserList = () => {
       closeModal();
       fetchUsers();
     } catch (error) {
-      toast.error(selectedUser ? 'Failed to update user' : 'Failed to add user');
+      console.log(error);
+      
+      toast.error(error.response.data.message ? error.response.data.message:'Failed to update user' );
     } finally {
       setIsSubmitting(false);
     }
@@ -503,8 +505,12 @@ const UserList = () => {
   return (
     <div className="p-6 bg-base-100 rounded-lg space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-neutral-content">User List</h1>
+      <div className="md:flex space-y-2 md:space-y-0 block justify-between items-center">
+        {/* <h1 className="text-2xl font-bold text-neutral-content">User List</h1> */}
+        <div className=' space-y-2'>
+       <h1 className="text-3xl font-bold text-neutral-content">User List </h1>
+       <p >Total Users : {users.length}</p>
+        </div>
         <button className="btn btn-primary" onClick={() => openModal()}>
           Add User
         </button>

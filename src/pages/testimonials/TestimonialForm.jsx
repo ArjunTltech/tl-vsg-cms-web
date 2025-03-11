@@ -38,9 +38,9 @@ function TestimonialForm({ onTestimonialCreated, initialData, mode, setIsDrawerO
   const validateField = (name, value) => {
     switch (name) {
       case 'author':
-        return value.trim().length >= 2
+        return /^[a-zA-Z\s]+$/.test(value) && value.trim().length >= 2
           ? null
-          : "Author name must be at least 2 characters long";
+          : "Author name must be at least 2 characters long and contain only letters ";      
       case 'position':
         return value.trim().length >= 2
           ? null
