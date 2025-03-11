@@ -101,8 +101,12 @@ const FAQPage = () => {
           onChange={() => setIsDrawerOpen(!isDrawerOpen)}
         />
         <div className="drawer-content">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-neutral-content">FAQs</h1>
+          <div className="md:flex space-y-2 md:space-y-0 block justify-between items-center mb-8">
+            {/* <h1 className="text-3xl font-bold text-neutral-content">FAQs</h1> */}
+            <div className=' space-y-2'>
+       <h1 className="text-3xl font-bold text-neutral-content">FAQ's </h1>
+       <p >Total Faq's : {faqs.length}</p>
+        </div>
             <button
               className="btn btn-primary gap-2"
               onClick={handleAddNewFAQ}

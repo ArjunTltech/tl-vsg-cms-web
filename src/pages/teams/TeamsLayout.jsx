@@ -82,7 +82,6 @@ const TeamManagement = () => {
     setIsDrawerOpen(true);
     setErrors({})
   };
-  console.log(formData);
 
   const handleEdit = (member) => {
     setFormData(member);
@@ -124,8 +123,8 @@ const TeamManagement = () => {
       const plainTextBio = data.bio.replace(/<[^>]*>/g, '').trim(); // Remove HTML tags
       const wordCount = plainTextBio.split(/\s+/).length; // Count words
 
-      if (wordCount < 50 || wordCount > 310) {
-        errors.bio = "Bio must be between 50 and 310 words.";
+      if (wordCount < 20 || wordCount > 310) {
+        errors.bio = "Bio must be between 20 and 310 words.";
       }
     }
 
@@ -175,7 +174,7 @@ const TeamManagement = () => {
       return;
     }
 
-    setErrors({}); // ✅ Clear all errors when validation passes
+    setErrors({}); 
 
     const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -448,8 +447,11 @@ const TeamManagement = () => {
 
   return (
     <div className="p-6">
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Team Management</h1>
+      <div className="mb-6 space-y-2 md:space-y-0 md:flex block justify-between  items-center">
+       <div className=' space-y-2'>
+       <h1 className="text-3xl font-bold">Team Management </h1>
+       <p >Total Team Members: {teamMembers.length}</p>
+        </div>
         <button className="btn btn-primary" onClick={handleAdd} disabled={isLoading}>
           <Plus className="h-5 w-5" />
           {isLoading ? 'Loading...' : 'Add Member'}
@@ -663,7 +665,7 @@ const TeamManagement = () => {
 
 
               <div className="flex justify-end gap-2 pt-4">
-                <button type="button" className="btn" onClick={() => setIsDrawerOpen(false)}>
+                <button type="button" className="btn" onClick={() => {setIsDrawerOpen(false),setErrors({})}}>
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary" disabled={isLoading}>

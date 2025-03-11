@@ -29,7 +29,7 @@ function ServiceCard({ service, onDelete, onEdit }) {
       <div className="card bg-base-200 transition-all duration-300 overflow-hidden group relative">
         <figure className="relative h-48 overflow-hidden">
           <img
-            src={service.image} // ✅ Corrected prop usage
+            src={service.image}
             alt={service.title}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
@@ -37,7 +37,7 @@ function ServiceCard({ service, onDelete, onEdit }) {
 
         <div className="card-body p-4">
           <h2 className="card-title text-neutral-content text-lg font-bold">
-            {service.title} - {service.provider} {/* Assuming `provider` instead of `author` */}
+            {service.title}  {/* Assuming `provider` instead of `author` */}
           </h2>
           <p className="text-neutral-content text-sm">{service.shortDescription}</p>
           <div className="flex items-center gap-4 mt-2">
