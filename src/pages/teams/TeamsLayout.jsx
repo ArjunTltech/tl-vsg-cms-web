@@ -53,8 +53,7 @@ const TeamManagement = () => {
     try {
       setIsLoading(true);
       const response = await axiosInstance.get('/team/all-team');
-      const sortedTeam = response.data.team.sort((a, b) => a.order - b.order);
-
+      const sortedTeam = response.data.team.sort((a, b) => a.order - b.order);      
       setTeamMembers(sortedTeam); setIsLoading(false);
     } catch (error) {
       console.error('Error fetching team members:', error);
@@ -227,12 +226,14 @@ const TeamManagement = () => {
     setSelectedMember(member);
     setIsDetailModalOpen(true);
   };
-
-  const truncateBio = (bio, maxLength = 80) => {
-    // Remove HTML tags for card display
-    const textOnly = bio?.replace(/<[^>]*>/g, '') || '';
-    if (textOnly.length <= maxLength) return textOnly;
-    return textOnly.substring(0, maxLength) + '...';
+  const stripHtml = (html) => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return doc.body.textContent || "";
+  };
+  
+  const truncateBio = (bio, length = 100) => {
+    const plainText = stripHtml(bio);
+    return plainText.length > length ? `${plainText.slice(0, length)}...` : plainText;
   };
 
   const TeamMemberCard = ({ member }) => (
