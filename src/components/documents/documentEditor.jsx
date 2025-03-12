@@ -118,7 +118,7 @@ const DocumentEditor = () => {
             </button>
           ))}
            <button
-            className={`btn btn-outline hover:btn-success mr-10 text-slate-300`}
+            className={`btn btn-outline hover:btn-success mr-10`}
             onClick={saveContent}
             disabled={isSaving}
           >
