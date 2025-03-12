@@ -13,10 +13,7 @@ function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen, faqs }) {
 
   // Log faqs prop to check if it's being properly passed
   useEffect(() => {
-    console.log("FAQs prop received:", faqs);
-    console.log("FAQs prop type:", typeof faqs);
-    console.log("Is faqs an array?", Array.isArray(faqs));
-    
+
     if (mode === "edit" && initialData) {
       setFaq({
         question: initialData.question || '',
@@ -28,7 +25,6 @@ function FAQForm({ onFAQCreated, initialData, mode, setIsDrawerOpen, faqs }) {
         question: '',
         answer: ''
       });
-      console.log("Add mode activated");
     }
     // Reset errors and submission state
     setErrors({});

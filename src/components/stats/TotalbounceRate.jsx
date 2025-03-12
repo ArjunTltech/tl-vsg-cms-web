@@ -12,7 +12,6 @@ const TotalBounceRate = () => {
         const fetchData = async () => {
             try {
                 const response = await axiosInstance.get("/stats/bounce-rate");
-                console.log(response.data);
                 
                 const result = response.data.data.length > 0 ? response.data.data[0].bounceRate : null;
                 setData(result);
