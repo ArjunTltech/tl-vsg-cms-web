@@ -477,7 +477,7 @@ const TeamManagement = () => {
               </h2>
               <button
                 className="btn btn-sm btn-circle"
-                onClick={() => setIsDrawerOpen(false)}
+                onClick={() => {setIsDrawerOpen(false),setErrors({}),setSelectedFile(null)}}
               >
                 ✕
               </button>
@@ -668,7 +668,7 @@ const TeamManagement = () => {
 
 
               <div className="flex justify-end gap-2 pt-4">
-                <button type="button" className="btn" onClick={() => {setIsDrawerOpen(false),setErrors({})}}>
+                <button type="button" className="btn" onClick={() => {setIsDrawerOpen(false),setErrors({}),setSelectedFile(null)}}>
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary" disabled={isLoading}>
