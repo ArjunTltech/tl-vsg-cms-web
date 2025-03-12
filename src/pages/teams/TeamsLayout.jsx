@@ -540,7 +540,7 @@ const TeamManagement = () => {
         }
         /* Add margin to separate from next field */
         .quill-container {
-          margin-bottom: 2rem;
+          margin-bottom: 0.5rem;
         }
 
         /* Light Mode Styles */
@@ -554,9 +554,11 @@ const TeamManagement = () => {
           color: white !important; /* Dark mode placeholder color */
           opacity: 0.6;
         }
-      `}</style>
-                {errors.bio && <p className="text-error">{errors.bio}</p>}
+      `}
+      
+      </style>
 
+                {errors.bio && <p className="text-error ">{errors.bio}</p>}
               </div>
 
               <div>
