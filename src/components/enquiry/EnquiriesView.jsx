@@ -207,7 +207,12 @@ const EnquiriesFilter = ({ onFilterChange, onDateRangeChange, filters, isVisible
     if (!localStartDate || !localEndDate) {
       setError("Please select both start and end dates.");
       return;
+    }    
+    if (new Date(localStartDate).getTime() === new Date(localEndDate).getTime()) {
+      setError("Start date and end date cannot be the same.");
+      return;
     }
+    
     const startDateFormatted = localStartDate && isValid(localStartDate)
       ? format(localStartDate, "yyyy-MM-dd")
       : "";
@@ -288,8 +293,9 @@ setError("")
             </div>
           </div>
           <p className="text-gray-500 text-sm mt-2">
-  Example: If you want to get data for March 3, set the start date as <b>March 3</b> and the end date as <b>March 4</b>.
-</p>          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+  Note: To get data for a day, set the start date to that day and the end date to the next day.
+</p>
+          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
         </div>
       </div>
