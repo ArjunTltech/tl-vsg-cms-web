@@ -365,6 +365,7 @@ const EnquiriesView = () => {
   const [enquiries, setEnquiries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [enquiryCount,setEnquiryCount]= useState()
   const [filters, setFilters] = useState({
     status: '',
     startDate: '',
@@ -399,6 +400,7 @@ const EnquiriesView = () => {
       queryParams.append('limit', filters.limit.toString());
 
       const response = await axiosInstance.get(`/enquiries/get-all-enquiries?${queryParams}`);
+      
 const formattedEnquiries = response.data.enquiries.map((enquiry) => ({
   ...enquiry,
   phoneNumber: enquiry.phoneNumber.length > 2 
@@ -408,6 +410,7 @@ const formattedEnquiries = response.data.enquiries.map((enquiry) => ({
 
 setEnquiries(formattedEnquiries);   
       setPagination(response.data.pagination);
+      setEnquiryCount(response.data.totalEnquiryCount)
     } catch (error) {
       console.error("Failed to fetch enquiries", error);
       toast.error("Failed to load enquiries");
@@ -502,7 +505,7 @@ setEnquiries(formattedEnquiries);
             <Inbox className="w-6 h-6 text-primary" />
             <div className="space-y-[0.5px]">
               <h1 className="text-2xl font-bold text-neutral-content">Enquiries</h1>
-              <p >Total Enquiries : {enquiries.length}</p>
+              <p >Total Enquiries : {enquiryCount}</p>
               <p className="text-sm text-gray-500 mt-1">Manage and respond to your enquiries</p>
             </div>
           </div>
