@@ -498,10 +498,11 @@ setEnquiries(formattedEnquiries);
     <div className="py-8 min-h-screen">
       <div className="bg-base-100 p-6 rounded-lg shadow-lg">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
+          <div className="flex items-start gap-3">
             <Inbox className="w-6 h-6 text-primary" />
-            <div>
+            <div className="space-y-[0.5px]">
               <h1 className="text-2xl font-bold text-neutral-content">Enquiries</h1>
+              <p >Total Enquiries : {enquiries.length}</p>
               <p className="text-sm text-gray-500 mt-1">Manage and respond to your enquiries</p>
             </div>
           </div>

@@ -11,7 +11,7 @@ const TotalBlogStats = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axiosInstance.get("/stats/total-blogs");
+                const response = await axiosInstance.get("/stats/total-services");
                 const result = response.data.data;
                 setData(result);
             } catch (error) {
@@ -30,7 +30,7 @@ const TotalBlogStats = () => {
                 <SkeletonCard />
             ) : (
                 <StatCard
-                    title="Blog Posts"
+                    title="Services"
                     value={data}
                     description="Published"
                     icon={FileText}
