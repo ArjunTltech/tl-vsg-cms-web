@@ -284,6 +284,7 @@ const organizationSchema = yup.object().shape({
     .required('Location is required')
     .max(200, 'Location must be at most 200 characters'),
   mapUrl: yup.string()
+  .required('Map URL is required')
     .url('Enter a valid URL')
     .max(500, 'Map URL must be at most 500 characters')
     .nullable(),
@@ -631,6 +632,8 @@ const OrganizationDetails = () => {
               register={register} 
               errors={errors} 
               placeholder="Ex: https://maps.google.com/..."
+              mandatory={true}
+
             />
           </div>
           <div className="flex justify-end mt-6">

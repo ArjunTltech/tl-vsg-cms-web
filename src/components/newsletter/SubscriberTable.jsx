@@ -53,15 +53,13 @@ const SubscriberTable = ({
     <div className="min-h-[700px] bg-base-100 p-6 rounded-lg shadow-lg">
       {/* Header Section */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3">
           <Mail className="w-6 h-6 text-primary" />
-          <div>
+          <div className="space-y-[0.5px]">
             <h1 className="text-2xl font-bold text-neutral-content">
               Newsletter Subscribers
-              <span className="text-sm text-gray-500 ml-2">
-                (Total: {totalSubscribers})
-              </span>
             </h1>
+              <p >Total Subscribers : {totalSubscribers}</p>
             <p className="text-sm text-gray-500 mt-1">
               Manage your newsletter subscriber list
             </p>
