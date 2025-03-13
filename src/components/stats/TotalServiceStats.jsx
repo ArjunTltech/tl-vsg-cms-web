@@ -4,7 +4,7 @@ import { FileText } from 'lucide-react';
 import axiosInstance from '../../config/axios';
 import { SkeletonCard } from '../skeleton/Skeleton';
 
-const TotalBlogStats = () => {
+const TotalServiceStats = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -30,7 +30,7 @@ const TotalBlogStats = () => {
                 <SkeletonCard />
             ) : (
                 <StatCard
-                    title="Services"
+                    title="Total Services"
                     value={data}
                     description="Published"
                     icon={FileText}
@@ -41,4 +41,4 @@ const TotalBlogStats = () => {
     );
 };
 
-export default TotalBlogStats;
+export default TotalServiceStats;
