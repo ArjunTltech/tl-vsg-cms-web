@@ -270,7 +270,7 @@ const MailConfig = () => {
                 <span className="text-red-500 text-sm mt-1">{errors.authPass.message}</span>
               )}
             </div>
-
+{/* 
             <div className="form-control">
               <label className="label cursor-pointer">
                 <span className="label-text">Secure Connection (SSL/TLS)</span>
@@ -280,7 +280,7 @@ const MailConfig = () => {
                   {...register('secure')}
                 />
               </label>
-            </div>
+            </div> */}
           </div>
 
           <div className="mt-6 flex justify-end gap-4">

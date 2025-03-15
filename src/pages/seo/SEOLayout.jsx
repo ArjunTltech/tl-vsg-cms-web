@@ -31,7 +31,7 @@ const SeoLayout = () => {
   const pages = ['home', 'about', 'services', 'faq', 'testimonials', 'contact', 'privacy-policy', 'terms'];
   const [selectedPage, setSelectedPage] = React.useState('home');
   const [isLoading, setIsLoading] = React.useState(false);
-  
+
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -113,7 +113,7 @@ const SeoLayout = () => {
   }, [selectedPage, reset]);
 
   const onSubmit = async (data) => {
-    try {      
+    try {
       const response = await axiosInstance.post(`seo/upsert/${selectedPage}`, {
         pageTitle: selectedPage,
         title: data.title.default,
@@ -140,7 +140,7 @@ const SeoLayout = () => {
 
   const handlePageChange = (page) => {
     setSelectedPage(page);
-     document.activeElement.blur();
+    document.activeElement.blur();
   };
 
   return (
@@ -192,12 +192,25 @@ const SeoLayout = () => {
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           <section className="space-y-4 bg-base-200 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-neutral-content">Basic Meta Tags</h3>
+            <div className="flex items-center space-x-2 relative group">
+              <h3 className="text-lg font-semibold text-neutral-content cursor-pointer">
+                Basic Meta Tags
+              </h3>
+              <span className="relative">
+                <span className="w-4 h-4 bg-gray-500 text-white text-xs rounded-full flex items-center justify-center cursor-pointer">
+                  ℹ️
+                </span>
+                <span className="absolute top-full sm:left-full sm:top-1/2 sm:-translate-y-1/2 left-1/2 -translate-x-1/2 sm:translate-x-0 mt-2 sm:mt-0 p-2 bg-gray-700 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-[90vw] sm:w-max max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg whitespace-normal break-words z-50">
+                  Meta tags are HTML elements that provide information about a webpage to search engines and browsers. They help improve SEO and control how the page appears in search results.
+                </span>
+              </span>
+            </div>
+
 
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-neutral-content block mb-1">Title
-                <span className="text-error pl-1">*</span>
+                  <span className="text-error pl-1">*</span>
                 </label>
                 <input
                   {...register('title.default')}
@@ -211,7 +224,7 @@ const SeoLayout = () => {
 
               <div>
                 <label className="text-sm font-medium text-neutral-content block mb-1">Description
-                <span className="text-error pl-1">*</span>
+                  <span className="text-error pl-1">*</span>
                 </label>
                 <textarea
                   {...register('description')}
@@ -225,8 +238,8 @@ const SeoLayout = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-neutral-content block mb-1">Keywords                  
-                     <span className="text-error pl-1">*</span>
+                <label className="text-sm font-medium text-neutral-content block mb-1">Keywords
+                  <span className="text-error pl-1">*</span>
                 </label>
                 <textarea
                   {...register('keywords')}
@@ -242,13 +255,25 @@ const SeoLayout = () => {
           </section>
 
           <section className="space-y-4 bg-base-200 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-neutral-content">Open Graph
-            </h3>
+            <div className="flex items-center space-x-2 relative group">
+              <h3 className="text-lg font-semibold text-neutral-content cursor-pointer">
+                Open Graph
+              </h3>
+              <span className="relative">
+                <span className="w-4 h-4 bg-gray-500 text-white text-xs rounded-full flex items-center justify-center cursor-pointer">
+                  ℹ️
+                </span>
+                <span className="absolute top-full sm:left-full sm:top-1/2 sm:-translate-y-1/2 left-1/2 -translate-x-1/2 sm:translate-x-0 mt-2 sm:mt-0 p-2 bg-gray-700 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-[90vw] sm:w-max max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg whitespace-normal break-words z-50">
+                  Open Graph is a protocol developed by Facebook to enhance how links appear when shared on social media. It helps control the title, image, and description in social media previews.
+                </span>
+              </span>
+            </div>
+
 
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-neutral-content block mb-1">OG Title
-                <span className="text-error pl-1">*</span>
+                  <span className="text-error pl-1">*</span>
                 </label>
                 <input
                   {...register('openGraph.title')}
@@ -262,7 +287,7 @@ const SeoLayout = () => {
 
               <div>
                 <label className="text-sm font-medium text-neutral-content block mb-1">OG Description
-                <span className="text-error pl-1">*</span>
+                  <span className="text-error pl-1">*</span>
                 </label>
                 <textarea
                   {...register('openGraph.description')}
@@ -277,7 +302,7 @@ const SeoLayout = () => {
 
               <div>
                 <label className="text-sm font-medium text-neutral-content block mb-1">OG Image URL
-                <span className="text-error pl-1">*</span>
+                  <span className="text-error pl-1">*</span>
                 </label>
                 <input
                   {...register('openGraph.image')}
@@ -292,7 +317,20 @@ const SeoLayout = () => {
           </section>
 
           <section className="space-y-4 bg-base-200 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-neutral-content">Twitter Card</h3>
+            <div className="flex items-center space-x-2 relative group">
+              <h3 className="text-lg font-semibold text-neutral-content cursor-pointer">
+                Twitter Card
+              </h3>
+              <span className="relative">
+                <span className="w-4 h-4 bg-gray-500 text-white text-xs rounded-full flex items-center justify-center cursor-pointer">
+                  ℹ️
+                </span>
+                <span className="absolute top-full sm:left-full sm:top-1/2 sm:-translate-y-1/2 left-1/2 -translate-x-1/2 sm:translate-x-0 mt-2 sm:mt-0 p-2 bg-gray-700 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-[90vw] sm:w-max max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg whitespace-normal break-words z-50">
+                  Twitter Card tags determine how your content appears when shared on Twitter. It enhances tweets by displaying rich media like images and descriptions.
+                </span>
+              </span>
+            </div>
+
 
             <div className="space-y-4">
               <div>
