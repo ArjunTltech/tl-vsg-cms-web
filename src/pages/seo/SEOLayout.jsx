@@ -140,6 +140,7 @@ const SeoLayout = () => {
 
   const handlePageChange = (page) => {
     setSelectedPage(page);
+     document.activeElement.blur();
   };
 
   return (
