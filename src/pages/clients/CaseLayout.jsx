@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { Search } from "lucide-react";
-import ClientForm from "./ClientForm";
-import ClientCard from "./ClientCard";
-import axiosInstance from "../../config/axios";
 
-function ClientsLayout() {
-  const [clients, setClients] = useState([]);
+import axiosInstance from "../../config/axios";
+import CaseCard from "./CaseCard";
+import CaseForm from "./CaseForm";
+
+function CaseLayout() {
+  const [caseStudy, setCaseStudy] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -17,11 +18,11 @@ function ClientsLayout() {
   const refreshClientList = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get("/client/get-all-clients");
-      setClients(response.data.data);
+      const response = await axiosInstance.get("/casestudy/get-all-casestudy");      
+      setCaseStudy(response.data.data);
     } catch (err) {
-      setError("Failed to load clients");
-      console.error("Error fetching clients:", err);
+      setError("Failed to load case");
+      console.error("Error fetching case:", err);
     } finally {
       setLoading(false);
     }
@@ -46,17 +47,17 @@ function ClientsLayout() {
   };
 
   // Handle Delete Client
-  const handleDeleteClient = (clientId) => {
-    setClients((prevClients) =>
-      prevClients.filter((client) => client.id !== clientId)
+  const handleDeleteClient = (caseId) => {
+    setCaseStudy((prevCase) =>
+      prevCase.filter((casestudy) => casestudy.id !== caseId)
     );
   };
 
   // Filter clients based on search query
-  const filteredClients = clients.filter((client) =>
-    client.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.company?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredClients = caseStudy.filter((casestudy) =>
+    casestudy.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  casestudy.author?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    casestudy.subTitle?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -73,12 +74,17 @@ function ClientsLayout() {
         <div className="drawer-content">
           {/* Header Section */}
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-neutral-content">Clients</h1>
+          <div className=' space-y-2'>
+
+            <h1 className="text-3xl font-bold text-neutral-content">Case</h1>
+            <p >Total Case : {caseStudy.length}</p>
+            </div>
+
             <button
               className="btn btn-primary text-white gap-2"
               onClick={handleAddNewClient}
             >
-              + New Client
+              + New Case
             </button>
           </div>
 
@@ -88,7 +94,7 @@ function ClientsLayout() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search client..."
+                placeholder="Search case..."
                 className="input input-bordered w-full focus:outline-none pl-10 bg-base-100 text-neutral-content"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -120,12 +126,12 @@ function ClientsLayout() {
             <div className="text-center text-red-500">{error}</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredClients.map((client) => (
-                <ClientCard
-                  key={client.id}
-                  client={client}
-                  onEdit={() => handleEditClient(client)}
-                  onDelete={() => handleDeleteClient(client.id)}
+              {filteredClients.map((casestudy) => (
+                <CaseCard
+                  key={casestudy.id}
+                  casestudy={casestudy}
+                  onEdit={() => handleEditClient(casestudy)}
+                  onDelete={() => handleDeleteClient(casestudy.id)}
                 />
               ))}
             </div>
@@ -137,9 +143,9 @@ function ClientsLayout() {
           <label htmlFor="new-client-drawer" className="drawer-overlay"></label>
           <div className="p-4 md:w-[40%] w-full sm:w-1/2 overflow-y-scroll bg-base-100 h-[85vh] text-base-content absolute bottom-4 right-4 rounded-lg shadow-lg">
             <h2 className="text-lg font-bold mb-4">
-              {mode === "edit" ? "Edit Client" : "Add New Client"}
+              {mode === "edit" ? "Edit Case" : "Add New Case"}
             </h2>
-            <ClientForm
+            <CaseForm
               onClientUpdated={refreshClientList}
               initialData={editClient}
               mode={mode}
@@ -153,4 +159,4 @@ function ClientsLayout() {
   );
 }
 
-export default ClientsLayout;
+export default CaseLayout;
