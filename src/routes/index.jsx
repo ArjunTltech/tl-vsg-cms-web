@@ -77,7 +77,7 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute><SocialMediaLayout /></ProtectedRoute>,
       },
       {
-        path: '/clients',
+        path: '/case-study',
         element: <ProtectedRoute><ClientsLayout /></ProtectedRoute>,
       },
       {

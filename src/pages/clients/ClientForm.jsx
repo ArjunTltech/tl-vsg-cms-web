@@ -5,18 +5,51 @@ import playNotificationSound from "../../utils/playNotification";
 
 function ClientForm({ onClientCreated, refreshClientList, initialData, mode, setIsDrawerOpen }) {
   const [title, setTitle] = useState("");
-  const [website, setWebsite] = useState("");
-  const [content, setContent] = useState("");
+  const [subTitle, setSubTitle] = useState("");
+  const [author, setAuthor] = useState("")
+  const [description,setDescription]=useState("")
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const inputRef = useRef(null);
+  const [errors, setErrors] = useState({});
+  const validateField = (name, value, mode) => {
+    switch (name) {
+      case 'title':
+        return value.trim().length >= 3
+          ? null
+          : "Title must be at least 3 characters long";
+      case 'description':
+        return value.trim().length >= 10
+          ? null
+          : "Description must be at least 10 characters long";
+      case 'subtitle':
+        return value.trim().length >= 10
+          ? null
+          : "Subtitle  must be at least 3 characters long";
+      case 'image':
+        // Skip image validation in edit mode if no new image is provided
+        if (mode === 'edit' && (value === undefined || value === null)) {
+          return null;
+        }
+        return value
+          ? null
+          : "Image is required";
+      case 'author':
+        return value.trim().length === 0 || value.trim().length >= 3
+          ? null
+          : "Author must be at least 3 characters long";
 
+      default:
+        return null;
+    }
+  };
   useEffect(() => {
     if (mode === "edit" && initialData) {
-      setTitle(initialData.name || "");
-      setWebsite(initialData.website || "");
-      setContent(initialData.description || "");
-      setImagePreview(initialData.logo || null);
+      setTitle(initialData.title || "");
+      setSubTitle(initialData.subTitle || "");
+      setAuthor(initialData.author || "");
+      setDescription(initialData.description || "");
+      setImagePreview(initialData.image || null);
     } else if (mode === "add") {
       resetForm();
     }
@@ -42,39 +75,58 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
 
   const resetForm = () => {
     setTitle("");
-    setWebsite("");
-    setContent("");
+    setSubTitle("");
+    setDescription("");
+    setAuthor("")
     setImageFile(null);
     setImagePreview(null);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    if (!title || !website || !content) {
-      toast.error("Please fill in all fields.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("name", title);
-    formData.append("website", website);
-    formData.append("description", content);
-    if (imageFile) {
-      formData.append("logo", imageFile);
-    }
-
     try {
-      if (mode === "add") {
-        await axiosInstance.post("/client/create-client", formData, {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("subTitle", subTitle);
+      formData.append("author", author);
+      formData.append("description", description);
+      const newErrors = {};
+
+      if (mode === "add") {        
+        const titleError = validateField('title', title);
+        if (titleError) newErrors.title = titleError;
+        const subtitleError = validateField('title', subTitle);
+        if (subtitleError) newErrors.subtitleError = subtitleError;
+
+        const descriptionError = validateField('description', description, mode);
+        if (descriptionError) newErrors.description = descriptionError;
+
+        const authorError = validateField('author', author, mode);
+        if (authorError) newErrors.points = pointsError;
+
+        const imageError = validateField('image', imageFile, mode);
+        if (imageError) newErrors.image = imageError;        
+        if (Object.keys(newErrors).length > 0) {
+          setErrors(newErrors);
+          return;
+        }
+        
+
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
+
+     let response =   await axiosInstance.post("/casestudy/create-case-study", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
-        toast.success("Client created successfully!");
+        
+        toast.success(response.data.message||"Casestudy created successfully!");
       } else if (mode === "edit" && initialData) {
-        await axiosInstance.put(
-          `/client/update-client/${initialData.id}`,
+     const response=   await axiosInstance.put(
+          `/casestudy/update-casestudy/${initialData.id}`,
           formData,
           {
             headers: {
@@ -83,7 +135,7 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
           }
         );
         playNotificationSound()
-        toast.success("Client updated successfully!");
+        toast.success(response.data.message||"Client updated successfully!");
       }
 
       if (refreshClientList) {
@@ -93,8 +145,8 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
       resetForm();
       setIsDrawerOpen(false);
     } catch (error) {
-      console.error("Error handling client:", error);
-      toast.error("Failed to save client. Please try again.");
+      console.error("Error handling casestudy:", error);
+      toast.error("Failed to save casestudy. Please try again.");
     }
   };
 
@@ -117,15 +169,36 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
       {/* Website Input */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Website</span>
+          <span className="label-text">SubTitle</span>
         </label>
         <input
-          type="url"
-          placeholder="Enter website URL"
+          type="text"
+          placeholder="Enter subtitle"
           className="input input-bordered border-accent"
-          value={website}
-          onChange={(e) => setWebsite(e.target.value)}
+          value={subTitle}
+          onChange={(e) => setSubTitle(e.target.value)}
         />
+      </div>
+      <div className="form-control mb-4">
+        <label className="label">
+          <span className="label-text">Author</span>
+        </label>
+        <input
+          type="text"
+          placeholder="Enter author name"
+          className="input input-bordered border-accent"
+          value={author}
+          onChange={(e) =>{
+             setAuthor(e.target.value)
+             const authorError = validateField('author', e.target.value, mode);
+             setErrors(prev => ({
+               ...prev,
+               author: authorError
+             }));
+            }}
+        />
+                {errors.author && <p className="text-error text-sm mt-1">{errors.author}</p>}
+
       </div>
 
       {/* Content Input */}
@@ -136,15 +209,26 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
         <textarea
           className="textarea textarea-bordered"
           placeholder="Write client description..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
+          value={description}
+          name="description"
+          onChange={(e) => {
+            setDescription(e.target.value)
+            const descriptionError = validateField('description', e.target.value, mode);
+            setErrors(prev => ({
+              ...prev,
+              description: descriptionError
+            }));
+          }
+          }
         ></textarea>
+        {errors.description && <p className="text-error text-sm mt-1">{errors.description}</p>}
+
       </div>
 
       {/* Image Upload */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Logo</span>
+          <span className="label-text">Image</span>
         </label>
         <div
           className="border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-center cursor-pointer bg-base-100"

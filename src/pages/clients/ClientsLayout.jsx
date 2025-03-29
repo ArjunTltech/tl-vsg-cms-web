@@ -5,7 +5,7 @@ import ClientCard from "./ClientCard";
 import axiosInstance from "../../config/axios";
 
 function ClientsLayout() {
-  const [clients, setClients] = useState([]);
+  const [caseStudy, setCaseStudy] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -17,8 +17,8 @@ function ClientsLayout() {
   const refreshClientList = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get("/client/get-all-clients");
-      setClients(response.data.data);
+      const response = await axiosInstance.get("/casestudy/get-all-casestudy");      
+      setCaseStudy(response.data.data);
     } catch (err) {
       setError("Failed to load clients");
       console.error("Error fetching clients:", err);
@@ -47,16 +47,16 @@ function ClientsLayout() {
 
   // Handle Delete Client
   const handleDeleteClient = (clientId) => {
-    setClients((prevClients) =>
-      prevClients.filter((client) => client.id !== clientId)
+    setCaseStudy((prevClients) =>
+      prevClients.filter((casestudy) => casestudy.id !== clientId)
     );
   };
 
   // Filter clients based on search query
-  const filteredClients = clients.filter((client) =>
-    client.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.company?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredClients = caseStudy.filter((casestudy) =>
+    casestudy.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  casestudy.author?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    casestudy.subTitle?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -120,12 +120,12 @@ function ClientsLayout() {
             <div className="text-center text-red-500">{error}</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredClients.map((client) => (
+              {filteredClients.map((casestudy) => (
                 <ClientCard
-                  key={client.id}
-                  client={client}
-                  onEdit={() => handleEditClient(client)}
-                  onDelete={() => handleDeleteClient(client.id)}
+                  key={casestudy.id}
+                  casestudy={casestudy}
+                  onEdit={() => handleEditClient(casestudy)}
+                  onDelete={() => handleDeleteClient(casestudy.id)}
                 />
               ))}
             </div>

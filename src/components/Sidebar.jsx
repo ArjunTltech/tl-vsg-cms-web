@@ -101,7 +101,7 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
             items: [
                 { name: 'Pages', path: '/pages', icon: Layout },
                 // { name: 'Blog Posts', path: '/posts', icon: PenTool, count: count.blogs },
-                // { name: 'Clients', path: '/clients', icon: Briefcase, count: count.clients },
+                { name: 'Casestudy', path: '/case-study', icon: Briefcase, count: count.clients },
                 { name: 'Documents', path: '/documents', icon: FileText },
                 { name: 'SEO Editor', path: '/seo-editor', icon: Layers },
                 { name: 'Team Members', path: '/team', icon: Users, count: count.team },
