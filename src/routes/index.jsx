@@ -10,7 +10,6 @@ import LoginPage from '../pages/auth/Login';
 import BlogsLayout from '../pages/blogs/BlogsLayout';
 import TestimonialLayout from '../pages/testimonials/TestimonialLayout';
 import SocialMediaLayout from '../pages/socialmedia/SocialMediaLayout';
-import ClientsLayout from '../pages/clients/ClientsLayout';
 import EnquiriesView from '../components/enquiry/EnquiriesView';
 import Notification from '../pages/notification/Notification';
 import TeamManagement from "../pages/teams/TeamsLayout";
@@ -33,6 +32,7 @@ import FAQPage from '../pages/faq/FAQPage.jsx';
 import OrganizationDetails from '../pages/organization-details/OrganizationDetails.jsx';
 import ServiceLayout from '../pages/services/ServiceLayout.jsx';
 import SpecialSymbol from './SpecialSymbol.jsx';
+import CaseLayout from '../pages/clients/CaseLayout.jsx';
 
 
 export const router = createBrowserRouter([
@@ -78,7 +78,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '/case-study',
-        element: <ProtectedRoute><ClientsLayout /></ProtectedRoute>,
+        element: <ProtectedRoute><CaseLayout /></ProtectedRoute>,
       },
       {
         path: '/enquiries',

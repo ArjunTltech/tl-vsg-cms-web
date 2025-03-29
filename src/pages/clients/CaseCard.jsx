@@ -4,7 +4,7 @@ import axiosInstance from "../../config/axios";
 import { toast } from "react-toastify";
 import DeleteConfirmModal from "../../components/ui/modal/DeleteConfirmModal";
 
-const ClientCard = ({ casestudy, onDelete, onEdit }) => {
+const CaseCard = ({ casestudy, onDelete, onEdit }) => {
   
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // State for loading
@@ -74,11 +74,11 @@ const ClientCard = ({ casestudy, onDelete, onEdit }) => {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
         isLoading={isLoading} // Pass loading state to the modal
-        title="Delete Client"
-        message="Are you sure you want to delete this client?"
+        title="Delete Case"
+        message="Are you sure you want to delete this case?"
       />
     </>
   );
 };
 
-export default ClientCard;
+export default CaseCard;

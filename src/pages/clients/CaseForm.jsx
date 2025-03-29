@@ -3,14 +3,15 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../config/axios";
 import playNotificationSound from "../../utils/playNotification";
 
-function ClientForm({ onClientCreated, refreshClientList, initialData, mode, setIsDrawerOpen }) {
+function CaseForm({ onClientCreated, refreshClientList, initialData, mode, setIsDrawerOpen }) {
   const [title, setTitle] = useState("");
   const [subTitle, setSubTitle] = useState("");
   const [author, setAuthor] = useState("")
-  const [description,setDescription]=useState("")
+  const [description, setDescription] = useState("")
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const inputRef = useRef(null);
+  const [loading,setLoading]=useState(false)
   const [errors, setErrors] = useState({});
   const validateField = (name, value, mode) => {
     switch (name) {
@@ -23,7 +24,7 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
           ? null
           : "Description must be at least 10 characters long";
       case 'subtitle':
-        return value.trim().length >= 10
+        return value.trim().length >= 3
           ? null
           : "Subtitle  must be at least 3 characters long";
       case 'image':
@@ -35,7 +36,7 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
           ? null
           : "Image is required";
       case 'author':
-        return value.trim().length === 0 || value.trim().length >= 3
+        return  value.trim().length >= 3
           ? null
           : "Author must be at least 3 characters long";
 
@@ -58,6 +59,10 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+      setErrors(prev => ({
+        ...prev,
+        image: ""
+      }));
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     } else {
@@ -92,40 +97,50 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
       formData.append("description", description);
       const newErrors = {};
 
-      if (mode === "add") {        
+      if (mode === "add") {
         const titleError = validateField('title', title);
         if (titleError) newErrors.title = titleError;
-        const subtitleError = validateField('title', subTitle);
-        if (subtitleError) newErrors.subtitleError = subtitleError;
+        const subtitleError = validateField('subtitle', subTitle);
+        if (subtitleError) newErrors.subtitle = subtitleError;
 
         const descriptionError = validateField('description', description, mode);
         if (descriptionError) newErrors.description = descriptionError;
 
         const authorError = validateField('author', author, mode);
-        if (authorError) newErrors.points = pointsError;
+        if (authorError) newErrors.author = authorError;
 
         const imageError = validateField('image', imageFile, mode);
-        if (imageError) newErrors.image = imageError;        
+        if (imageError) newErrors.image = imageError;
         if (Object.keys(newErrors).length > 0) {
           setErrors(newErrors);
           return;
         }
-        
-
-    if (imageFile) {
-      formData.append("image", imageFile);
-    }
 
 
-     let response =   await axiosInstance.post("/casestudy/create-case-study", formData, {
+        if (imageFile) {
+          formData.append("image", imageFile);
+        }
+      setLoading(!loading)
+
+        let response = await axiosInstance.post("/casestudy/create-case-study", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
-        
-        toast.success(response.data.message||"Casestudy created successfully!");
+
+        toast.success(response.data.message || "Casestudy created successfully!");
+        setLoading(false)
+
       } else if (mode === "edit" && initialData) {
-     const response=   await axiosInstance.put(
+        setLoading(!loading)
+        if(!imagePreview){
+          setErrors(prev => ({
+            ...prev,
+            image: "Image is required"
+          }));
+          return
+        }
+        const response = await axiosInstance.put(
           `/casestudy/update-casestudy/${initialData.id}`,
           formData,
           {
@@ -135,7 +150,8 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
           }
         );
         playNotificationSound()
-        toast.success(response.data.message||"Client updated successfully!");
+        toast.success(response.data.message || "Client updated successfully!");
+        
       }
 
       if (refreshClientList) {
@@ -148,8 +164,14 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
       console.error("Error handling casestudy:", error);
       toast.error("Failed to save casestudy. Please try again.");
     }
+    finally {
+      setLoading(false); // Hide loader after submission
+    }
   };
-
+const onCancel= ()=>{
+  setIsDrawerOpen(false);
+  setErrors({})
+}
   return (
     <form onSubmit={handleSubmit}>
       {/* Title Input */}
@@ -162,8 +184,16 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
           placeholder="Client name"
           className="input input-bordered border-accent"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {setTitle(e.target.value)
+            const titleError = validateField('title', e.target.value, mode);
+            setErrors(prev => ({
+              ...prev,
+              title: titleError
+            }));
+          }}
         />
+                {errors.title && <p className="text-error text-sm mt-1">{errors.title}</p>}
+
       </div>
 
       {/* Website Input */}
@@ -176,8 +206,18 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
           placeholder="Enter subtitle"
           className="input input-bordered border-accent"
           value={subTitle}
-          onChange={(e) => setSubTitle(e.target.value)}
+          onChange={(e) => {
+            setSubTitle(e.target.value)
+            const subTitleError = validateField('subtitle', e.target.value, mode);
+            setErrors(prev => ({
+              ...prev,
+              subtitle: subTitleError
+            }));
+
+          }}
         />
+        {errors.subtitle&& <p className="text-error text-sm mt-1">{errors.subtitle}</p>}
+
       </div>
       <div className="form-control mb-4">
         <label className="label">
@@ -188,16 +228,16 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
           placeholder="Enter author name"
           className="input input-bordered border-accent"
           value={author}
-          onChange={(e) =>{
-             setAuthor(e.target.value)
-             const authorError = validateField('author', e.target.value, mode);
-             setErrors(prev => ({
-               ...prev,
-               author: authorError
-             }));
-            }}
+          onChange={(e) => {
+            setAuthor(e.target.value)
+            const authorError = validateField('author', e.target.value, mode);
+            setErrors(prev => ({
+              ...prev,
+              author: authorError
+            }));
+          }}
         />
-                {errors.author && <p className="text-error text-sm mt-1">{errors.author}</p>}
+        {errors.author && <p className="text-error text-sm mt-1">{errors.author}</p>}
 
       </div>
 
@@ -269,17 +309,27 @@ function ClientForm({ onClientCreated, refreshClientList, initialData, mode, set
             ref={inputRef}
             onChange={handleImageChange}
           />
+
         </div>
+        {errors.image && <p className="text-error text-sm mt-1">{errors.image}</p>}
       </div>
 
       {/* Submit Button */}
-      <div className="form-control">
-        <button type="submit" className="btn btn-primary">
-          {mode === "add" ? "Create" : "Update"}
+      <div className="form-control d-flex justify-content-end align-items-center gap-2">
+      <button type="submit" className="btn btn-primary d-flex align-items-center" disabled={loading}>
+          {loading && <span className="spinner-border spinner-border-sm me-2"></span>}
+          {loading ? (mode === "add" ? "Creating..." : "Updating...") : mode === "add" ? "Create" : "Update"}
         </button>
-      </div>
+  <button type="button" className="btn " onClick={onCancel}>
+    Cancel
+  </button>
+  
+</div>
+
+
+
     </form>
   );
 }
 
-export default ClientForm;
+export default CaseForm;
