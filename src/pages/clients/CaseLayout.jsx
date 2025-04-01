@@ -21,8 +21,8 @@ function CaseLayout() {
       const response = await axiosInstance.get("/casestudy/get-all-casestudy");      
       setCaseStudy(response.data.data);
     } catch (err) {
-      setError("Failed to load case");
-      console.error("Error fetching case:", err);
+      setError("Failed to load casestudy");
+      console.error("Error fetching casestudy:", err);
     } finally {
       setLoading(false);
     }
@@ -76,15 +76,15 @@ function CaseLayout() {
           <div className="flex justify-between items-center mb-8">
           <div className=' space-y-2'>
 
-            <h1 className="text-3xl font-bold text-neutral-content">Case</h1>
-            <p >Total Case : {caseStudy.length}</p>
+            <h1 className="text-3xl font-bold text-neutral-content">Case Study</h1>
+            <p >Total Casestudy : {caseStudy.length}</p>
             </div>
 
             <button
               className="btn btn-primary text-white gap-2"
               onClick={handleAddNewClient}
             >
-              + New Case
+              + New Case Study
             </button>
           </div>
 
