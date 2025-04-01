@@ -12,12 +12,16 @@ function BlogsLayout() {
   const [editBlog, setEditBlog] = useState(null);
   const [mode, setMode] = useState("add");
   const [searchQuery, setSearchQuery] = useState("");
+  const [blogCount, setBlogCount] = useState(0);
 
   const refreshBlogList = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get("/blog/get-all-blogs");
       setBlogs(response.data.data);
+      const totalBlogCount = response.data.data.length;
+      console.log(totalBlogCount);
+      setBlogCount(totalBlogCount);
     } catch (err) {
       setError("Failed to load blogs");
       console.error("Error fetching blogs:", err);
@@ -32,6 +36,9 @@ function BlogsLayout() {
         setLoading(true);
         const response = await axiosInstance.get("/blog/get-all-blogs");
         setBlogs(response.data.data);
+        const totalBlogCount = response.data.data.length;
+        console.log(totalBlogCount);
+        setBlogCount(totalBlogCount);
       } catch (err) {
         setError("Failed to load blogs");
         console.error("Error fetching blogs:", err);
@@ -44,7 +51,11 @@ function BlogsLayout() {
   }, []);
 
   const handleDeleteBlog = (blogId) => {
-    setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== blogId));
+    setBlogs((prevBlogs) => {
+      const updatedBlogs = prevBlogs.filter((blog) => blog.id !== blogId);
+      setBlogCount(updatedBlogs.length);
+      return updatedBlogs;
+    });
   };
 
   const handleEditBlog = (blog) => {
@@ -77,7 +88,7 @@ function BlogsLayout() {
         />
         <div className="drawer-content">
           {/* Header Section */}
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-between items-center mb-2">
             <h1 className="text-3xl font-bold text-neutral-content">Blogs</h1>
             <button
               className="btn btn-primary text-white gap-2"
@@ -86,6 +97,14 @@ function BlogsLayout() {
               + New post
             </button>
           </div>
+
+          {/* Blog Count Display */}
+          <div className="mb-6">
+            <p className="text-sm text-neutral-content opacity-80">
+              {loading ? "Loading blogs..." : `Total Blogs: ${blogCount}`}
+            </p>
+          </div>
+
 
           {/* Search and Filter Section */}
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
@@ -137,14 +156,20 @@ function BlogsLayout() {
             <div className="text-center text-red-500">{error}</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredBlogs.map((blog) => (
-                <BlogCard
-                  key={blog.id}
-                  blog={blog}
-                  onDelete={handleDeleteBlog}
-                  onEdit={() => handleEditBlog(blog)}
-                />
-              ))}
+              {filteredBlogs.length > 0 ? (
+                filteredBlogs.map((blog) => (
+                  <BlogCard
+                    key={blog.id}
+                    blog={blog}
+                    onDelete={handleDeleteBlog}
+                    onEdit={() => handleEditBlog(blog)}
+                  />
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-10">
+                  <p className="text-neutral-content opacity-70">No blogs found matching your search criteria.</p>
+                </div>
+              )}
             </div>
           )}
         </div>
