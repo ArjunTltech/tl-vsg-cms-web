@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../config/axios";
+import playNotificationSound from "../../utils/playNotification";
 
 function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   // Form fields
@@ -11,6 +12,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+    const [loading,setLoading]=useState(false)
   
   // Validation errors
   const [errors, setErrors] = useState({
@@ -209,14 +211,17 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     try {
       let response;
       if (mode === "add") {
-        response = await axiosInstance.post("/blog/create-blog", formData, {
+        setLoading(!loading)
+        let response = await axiosInstance.post("/blog/create-blog", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
-        toast.success("Blog post created successfully!");
+        toast.success(response.data.message ||"Blog post created successfully!");
+        setLoading(false)
+
       } else if (mode === "edit" && initialData) {
-        response = await axiosInstance.put(
+        const response = await axiosInstance.put(
           `/blog/update-blog/${initialData.id}`,
           formData,
           {
@@ -225,7 +230,8 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
             },
           }
         );
-        toast.success("Blog post updated successfully!");
+        playNotificationSound()
+        toast.success(response.data.message ||"Blog post updated successfully!");
       }
 
       if (onBlogCreated) {
@@ -244,8 +250,12 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     } catch (error) {
       console.error("Error handling blog post:", error);
       toast.error("Failed to save blog post. Please try again.");
+    }    
+    finally {
+      setLoading(false); // Hide loader after submission
     }
   };
+
 
   // Existing useEffect for populating form in edit mode
   useEffect(() => {
@@ -276,6 +286,11 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       });
     }
   }, [mode, initialData]);
+
+  const onCancel= ()=>{
+    setIsDrawerOpen(false);
+    setErrors({})
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -412,10 +427,15 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       </div>
 
       {/* Publish Button */}
-      <div className="form-control">
-        <button type="submit" className="btn btn-primary">
-          {mode === "add" ? "Publish" : "Update"}
+      <div className="form-control ">
+        <button type="submit" className="btn btn-primary" disabled={loading}>
+        {loading && <span className="spinner-border spinner-border-sm me-2"></span>}
+
+          {loading ? (mode === "add" ? "Creating..." : "Updating.."): mode === "add" ? "Create" : "Update"}
         </button>
+        <button type="button" className="btn " onClick={onCancel}>
+    Cancel
+  </button>
       </div>
     </form>
   );
