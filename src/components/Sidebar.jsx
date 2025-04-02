@@ -28,7 +28,9 @@ import {
     Shield,
     MailIcon,
     BriefcaseBusiness,
-    Info
+    Info,
+    UserCog,
+    BookOpenCheck
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
@@ -100,8 +102,10 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
             section: "Content Management",
             items: [
                 { name: 'Pages', path: '/pages', icon: Layout },
+                // { name: 'Blog Posts', path: '/posts', icon: PenTool, count: count.blogs },
+                { name: 'Case Study', path: '/case-study', icon: BookOpenCheck, count: count.clients },
+                { name: 'Careers', path: '/career', icon: UserCog, count: count.clients },
                 { name: 'Blog Posts', path: '/posts', icon: PenTool, count: count.blogs },
-                { name: 'Case Study', path: '/case-study', icon: Briefcase, count: count.clients },
                 { name: 'Documents', path: '/documents', icon: FileText },
                 { name: 'SEO Editor', path: '/seo-editor', icon: Layers },
                 { name: 'Team Members', path: '/team', icon: Users, count: count.team },

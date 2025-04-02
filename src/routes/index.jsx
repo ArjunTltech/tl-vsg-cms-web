@@ -33,6 +33,7 @@ import OrganizationDetails from '../pages/organization-details/OrganizationDetai
 import ServiceLayout from '../pages/services/ServiceLayout.jsx';
 import SpecialSymbol from './SpecialSymbol.jsx';
 import CaseLayout from '../pages/clients/CaseLayout.jsx';
+import CareerLayout from '../pages/clients/career/CareerLayout.jsx';
 
 
 export const router = createBrowserRouter([
@@ -79,6 +80,10 @@ export const router = createBrowserRouter([
       {
         path: '/case-study',
         element: <ProtectedRoute><CaseLayout /></ProtectedRoute>,
+      },
+      {
+        path: '/career',
+        element: <ProtectedRoute><CareerLayout /></ProtectedRoute>,
       },
       {
         path: '/enquiries',
