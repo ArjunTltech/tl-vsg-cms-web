@@ -48,6 +48,8 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
         comments: 0,
         notifications: 0,
         blogs: 0,
+        cases: 0,
+        carrers: 0,
         services: 0,
         users: 0,
         faqs: 0,
@@ -61,11 +63,14 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
         const fetchCounts = async () => {
             try {
                 const { data } = await axiosInstance.get('/stats/total-counts');
+                console.log(data);
                 setCount({
                     enquiries: data.counts.enquiries.unread || 0,
                     comments: 0,
                     notifications: data.counts.notifications.unread || 0,
                     blogs: data.counts.blogs.total || 0,
+                    cases: data.counts.cases.total || 0,
+                    carrers: data.counts.carrers.total || 0,
                     services: data.counts.services.total || 0,
                     users: data.counts.users.total || 0,
                     faqs: data.counts.faqs.total || 0,
@@ -103,8 +108,8 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
             items: [
                 { name: 'Pages', path: '/pages', icon: Layout },
                 // { name: 'Blog Posts', path: '/posts', icon: PenTool, count: count.blogs },
-                { name: 'Case Study', path: '/case-study', icon: BookOpenCheck, count: count.clients },
-                { name: 'Careers', path: '/career', icon: UserCog, count: count.clients },
+                { name: 'Case Study', path: '/case-study', icon: BookOpenCheck, count: count.cases },
+                { name: 'Careers', path: '/career', icon: UserCog, count: count.carrers },
                 { name: 'Blog Posts', path: '/posts', icon: PenTool, count: count.blogs },
                 { name: 'Documents', path: '/documents', icon: FileText },
                 { name: 'SEO Editor', path: '/seo-editor', icon: Layers },
