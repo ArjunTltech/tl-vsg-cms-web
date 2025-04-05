@@ -71,7 +71,6 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
         const fetchCounts = async () => {
             try {
                 const { data } = await axiosInstance.get('/stats/total-counts');
-                console.log(data);
                 setCount({
                     enquiries: data.counts.enquiries.unread || 0,
                     comments: 0,

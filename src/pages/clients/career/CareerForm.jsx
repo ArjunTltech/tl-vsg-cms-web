@@ -39,22 +39,40 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
   const validateField = (name, value) => {
     switch (name) {
       case 'position':
-        return value.trim().length < 3 ? "Position must be at least 3 characters long" : null;
+        return value.trim().length < 3
+          ? "Position must be at least 3 characters long"
+          : null;
+  
       case 'positionCount':
-        return isNaN(value) || value < 1 ? "Position count must be a valid number greater than 0" : null;
+        return isNaN(value) || value < 1
+          ? "Position count must be a valid number greater than 0"
+          : null;
+  
       case 'location':
-        return value.trim().length < 3 ? "Location must be at least 3 characters long" : null;
+        return value.trim().length < 3
+          ? "Location must be at least 3 characters long"
+          : null;
+  
       case 'shortdescription':
-        if (value.trim().length > 0 && (value.trim().length < 10 || value.trim().length > 100)) {
+        const len = value.trim().length;
+        if (len === 0) {
+          return "Short description is required";
+        }
+        if (len < 10 || len > 100) {
           return "Short description must be between 10 and 100 characters long";
         }
         return null;
+  
       case 'jobType':
-        return value === '' ? "Job type is required" : null;
+        return value === ''
+          ? "Job type is required"
+          : null;
+  
       default:
         return null;
     }
   };
+  
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -163,7 +181,9 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
         {errors.jobType && <p className="text-error text-sm mt-1">{errors.jobType}</p>}
       </div>
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Short Description</label>
+        <label className="block text-sm font-medium mb-1">Short Description 
+        <span className="text-error">*</span>
+        </label>
         <textarea
           placeholder="Enter Short Description"
           className={`textarea textarea-bordered w-full ${errors.shortdescription ? 'textarea-error' : ''}`}
