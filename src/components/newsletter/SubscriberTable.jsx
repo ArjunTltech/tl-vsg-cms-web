@@ -60,7 +60,7 @@ const SubscriberTable = ({
               Newsletters
             </h1>
               <p >Total Subscribers : {totalSubscribers}</p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-500 hover:text-gray-400 mt-1">
               Manage your newsletter subscriber list
             </p>
           </div>
