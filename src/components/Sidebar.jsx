@@ -6,31 +6,38 @@ import {
     Home,
     Settings,
     Users,
-    Briefcase,
     X,
     Layout,
-    Image,
     Mail,
     MessageSquare,
-    FileImage,
-    ShoppingCart,
-    Calendar,
     Globe,
-    Bell,
-    BookOpen,
-    Tag,
-    Folder,
     PenTool,
-    HelpCircle,
-    Lock,
     Layers,
-    Database,
-    Shield,
     MailIcon,
     BriefcaseBusiness,
     Info,
     UserCog,
-    BookOpenCheck
+    BookOpenCheck,
+    ClipboardList,
+    FileQuestion,
+    Newspaper,
+    YoutubeIcon,
+    Briefcase,
+    Image,
+    FileImage,
+    ShoppingCart,
+    Calendar,
+    Bell,
+    BookOpen,
+    Tag,
+    Folder,
+    HelpCircle,
+    Lock,
+    Database,
+    Shield,
+    MessageCircleQuestion,
+    MailOpen,
+    Inbox
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
@@ -100,7 +107,7 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
             items: [
                 { name: 'Dashboard', path: '/', icon: Home },
                 { name: 'Analytics', path: '/analytics', icon: BarChart2 },
-                { name: 'Enquiries', path: '/enquiries', icon: FileText, count: count.enquiries },
+                { name: 'Enquiries', path: '/enquiries', icon: ClipboardList, count: count.enquiries },
             ]
         },
         {
@@ -108,13 +115,14 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
             items: [
                 { name: 'Pages', path: '/pages', icon: Layout },
                 // { name: 'Blog Posts', path: '/posts', icon: PenTool, count: count.blogs },
-                { name: 'Case Study', path: '/case-study', icon: BookOpenCheck, count: count.cases },
+                { name: 'Case Studies', path: '/case-study', icon: BookOpenCheck, count: count.cases },
                 { name: 'Careers', path: '/career', icon: UserCog, count: count.carrers },
-                { name: 'Blog Posts', path: '/posts', icon: PenTool, count: count.blogs },
-                { name: 'Documents', path: '/documents', icon: FileText },
+                { name: 'Blogs', path: '/blog', icon: PenTool, count: count.blogs },
+                { name: 'Compliance', path: '/documents', icon: FileText },
                 { name: 'SEO Editor', path: '/seo-editor', icon: Layers },
-                { name: 'Team Members', path: '/team', icon: Users, count: count.team },
-                { name: 'FAQs', path: '/faqs', icon: FileText, count: count.faqs },
+                // { name: 'Video Management', path: '/youtube-videos', icon: YoutubeIcon },
+                { name: 'Team Management', path: '/team', icon: Users, count: count.team },
+                { name: 'FAQs', path: '/faqs', icon: FileQuestion, count: count.faqs },
                 { name: 'Services', path: '/services', icon: BriefcaseBusiness, count: count.services },
                 { name: 'Organization Details', path: '/organization-details', icon: Info, },
             ]
@@ -122,14 +130,14 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
         {
             section: "User Management",
             items: [
-                { name: 'Users', path: '/users', icon: Users, role: 'superadmin' , count: count.users },
+                { name: 'Users', path: '/users', icon: Users, role: 'superadmin', count: count.users },
                 // { name: 'Roles & Permissions', path: '/roles', icon: Lock },
             ]
         },
         {
             section: "Marketing",
             items: [
-                { name: 'Newsletters', path: '/newsletters', icon: Mail, count: count.newsletters },
+                { name: 'Newsletters', path: '/newsletters', icon: Newspaper, count: count.newsletters },
                 // { name: 'Comments', path: '/comments', icon: MessageSquare, count: count.comments },
                 { name: 'Testimonials', path: '/testimonials', icon: MessageSquare, count: count.testimonials },
                 { name: 'Social Media', path: '/social', icon: Globe, count: count.socialMedia },
@@ -242,15 +250,15 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
                 <nav className="px-2 h-[calc(100vh-4rem)] overflow-y-auto scrollbar-hidden pb-24">
                     {navigation.map((section, index) => {
                         // Filter items based on role requirements
-                        const filteredItems = section.items.filter(item => 
+                        const filteredItems = section.items.filter(item =>
                             !item.role || authState.role === item.role
                         );
-                        
+
                         // Skip rendering the entire section if no items remain after filtering
                         if (filteredItems.length === 0) {
                             return null;
                         }
-                        
+
                         return (
                             <div key={section.section} className={`${index > 0 ? 'mt-6' : 'mt-2'}`}>
                                 <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isCollapsed ? 'h-0 opacity-0' : 'h-6 opacity-100'
@@ -281,7 +289,7 @@ function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
                         );
                     })}
                 </nav>
-                
+
             </aside>
 
             {/* Add custom styles for Tippy */}

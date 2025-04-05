@@ -34,6 +34,7 @@ import ServiceLayout from '../pages/services/ServiceLayout.jsx';
 import SpecialSymbol from './SpecialSymbol.jsx';
 import CaseLayout from '../pages/clients/CaseLayout.jsx';
 import CareerLayout from '../pages/clients/career/CareerLayout.jsx';
+import VideoReorderPage from '../pages/youTube-Videos/VideoReorderPage.jsx';
 
 
 export const router = createBrowserRouter([
@@ -66,7 +67,7 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute><Settings /></ProtectedRoute>,
       },
       {
-        path: '/posts',
+        path: '/blog',
         element: <ProtectedRoute><BlogsLayout /></ProtectedRoute>,
       },
       {
@@ -136,6 +137,10 @@ export const router = createBrowserRouter([
       {
         path: 'services',
         element: <ProtectedRoute><ServiceLayout /></ProtectedRoute>,
+      },
+      {
+        path: 'youtube-videos',
+        element: <ProtectedRoute><VideoReorderPage /></ProtectedRoute>,
       }
     ],
   },

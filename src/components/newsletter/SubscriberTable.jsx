@@ -57,7 +57,7 @@ const SubscriberTable = ({
           <Mail className="w-6 h-6 text-primary" />
           <div className="space-y-[0.5px]">
             <h1 className="text-2xl font-bold text-neutral-content">
-              Newsletter Subscribers
+              Newsletters
             </h1>
               <p >Total Subscribers : {totalSubscribers}</p>
             <p className="text-sm text-gray-500 mt-1">

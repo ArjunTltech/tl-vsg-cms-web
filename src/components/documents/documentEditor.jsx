@@ -101,8 +101,8 @@ const DocumentEditor = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-neutral-content">Documents</h1>
-            <p className="text-sm text-gray-500 mt-1">Manage your documents</p>
+            <h1 className="text-2xl font-bold text-neutral-content">Compliance</h1>
+            <p className="text-sm text-gray-500 mt-1">Manage your Compliance</p>
           </div>
         </div>
         <div className="flex gap-2 ">
