@@ -6,13 +6,121 @@ import {
   Loader,
   Edit,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  GripVertical,
+  ArrowUpDown
 } from 'lucide-react';
 import axiosInstance from '../../config/axios';
 import { toast } from 'react-toastify';
 import playNotificationSound from '../../utils/playNotification';
 import YoutubeVideoForm from './youtubeVideoForm';
-// You'll need to create this component
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverlay
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+
+// Sortable item component for each video row
+const SortableVideoItem = ({ video, onEditClick, onDeleteClick, copyToClipboard, showOrder = false }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id: video.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 999 : 1
+  };
+
+  return (
+    <tr 
+      ref={setNodeRef} 
+      style={style} 
+      className={`hover:bg-base-300/10 ${isDragging ? 'bg-base-300/20' : ''}`}
+    >
+      <td className="w-10 cursor-grab" {...attributes} {...listeners}>
+        <div className="flex justify-center">
+          <GripVertical className="w-5 h-5 text-gray-500" />
+        </div>
+      </td>
+      {showOrder && (
+        <td className="w-14 text-center">
+          <span className="badge badge-sm">{video.position !== undefined ? video.position + 1 : '–'}</span>
+        </td>
+      )}
+      <td className="align-top">
+        <div className="flex items-center gap-3">
+          <div className="avatar">
+            <div className="w-16 h-10 rounded">
+              <img 
+                src={video.thumbnailUrl} 
+                alt={video.title}
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/160x90?text=No+Thumbnail";
+                }} 
+              />
+            </div>
+          </div>
+          <div>
+            <div className="font-medium text-sm">{video.title}</div>
+            <div className="text-xs opacity-70 max-w-xs truncate">{video.description}</div>
+          </div>
+        </div>
+      </td>
+      <td className="align-middle">
+        <div className="flex items-center gap-2">
+          <span className="truncate text-xs sm:text-sm max-w-xs font-mono">
+            {video.youtubeUrl}
+          </span>
+          <button
+            onClick={() => copyToClipboard(video.youtubeUrl)}
+            className="btn btn-ghost btn-xs"
+            title="Copy to clipboard"
+          >
+            <LinkIcon className="w-4 h-4" />
+          </button>
+        </div>
+      </td>
+      <td className="text-right">
+        <div className="flex justify-end space-x-2">
+          <button
+            className="btn btn-primary btn-xs"
+            onClick={() => onEditClick(video.id)}
+            title="Edit"
+          >
+            <Edit className="w-4 h-4" />
+          </button>
+          <button
+            className="btn btn-error btn-xs"
+            onClick={() => onDeleteClick(video.id)}
+            title="Delete"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+};
 
 const YoutubeVideoLayout = () => {
   // State for managing video links
@@ -27,19 +135,43 @@ const YoutubeVideoLayout = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isReordering, setIsReordering] = useState(false);
+  const [showOrderColumn, setShowOrderColumn] = useState(false);
   
   // Drawer state
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState("add"); // "add" or "edit"
   const [editVideoData, setEditVideoData] = useState(null);
 
+  // DnD active state
+  const [activeId, setActiveId] = useState(null);
+  
+  // Define sensors for drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   // Fetch YouTube videos from API
   const fetchVideos = async () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get("/youtube/get-all-youtube-videos");
-      setVideos(response.data);
-      setActiveVideoCount(response.data.length);
+      
+      // Sort videos by position if available
+      const sortedVideos = [...response.data].sort((a, b) => {
+        // If position exists, sort by it, otherwise maintain original order
+        return (a.position ?? Infinity) - (b.position ?? Infinity);
+      });
+      
+      setVideos(sortedVideos);
+      setActiveVideoCount(sortedVideos.length);
       setError(null);
     } catch (err) {
       setError("Failed to load YouTube videos");
@@ -64,11 +196,6 @@ const YoutubeVideoLayout = () => {
   const handleEditClick = (videoId) => {
     const video = videos.find(v => v.id === videoId);
     if (video) {
-      // For inline editing
-    //   setEditing(videoId);
-    //   setNewLink(video.youtubeUrl);
-      
-      // For drawer editing
       setEditVideoData(video);
       setDrawerMode("edit");
       setIsDrawerOpen(true);
@@ -177,6 +304,64 @@ const YoutubeVideoLayout = () => {
     }
   };
 
+  // Handle drag end event
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    
+    if (active.id !== over.id) {
+      setIsReordering(true);
+      const oldIndex = videos.findIndex(item => item.id === active.id);
+      const newIndex = videos.findIndex(item => item.id === over.id);
+      
+      // Update the local state first for immediate feedback
+      const updatedVideos = arrayMove(videos, oldIndex, newIndex).map((video, index) => ({
+        ...video,
+        position: index
+      }));
+      
+      setVideos(updatedVideos);
+      
+      try {
+        // Prepare the payload for the API
+        const orderedIds = updatedVideos.map((video) => video.id);
+        
+        // Make API call to update the order using your actual endpoint
+        await axiosInstance.put("/youtube/youtube-videos/reorder", {
+          videoIds: orderedIds
+        });
+        
+        playNotificationSound();
+        toast.success("Video order updated successfully!");
+      } catch (error) {
+        console.error("Error updating video order:", error);
+        toast.error("Failed to update video order. The order will reset on refresh.");
+        
+        // Revert to original order if API call fails
+        await fetchVideos();
+      } finally {
+        setIsReordering(false);
+        setActiveId(null);
+      }
+    } else {
+      setActiveId(null);
+    }
+  };
+
+  // Handle drag start
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
+  };
+
+  // Get active item for drag overlay
+  const getActiveItem = () => {
+    return videos.find(video => video.id === activeId);
+  };
+
+  // Toggle showing order column
+  const toggleOrderColumn = () => {
+    setShowOrderColumn(prev => !prev);
+  };
+
   if (loading) {
     return (
       <div className="card w-full bg-base-200 shadow-xl p-6">
@@ -235,19 +420,27 @@ const YoutubeVideoLayout = () => {
               </div>
               <div className="flex gap-2">
                 <button
+                  className={`btn ${showOrderColumn ? 'btn-primary' : 'btn-ghost'} btn-sm`}
+                  onClick={toggleOrderColumn}
+                  title={showOrderColumn ? "Hide order numbers" : "Show order numbers"}
+                >
+                  <ArrowUpDown className="w-4 h-4" />
+                </button>
+                <button
                   className="btn btn-ghost btn-sm"
                   onClick={handleRefresh}
-                  disabled={isRefreshing}
+                  disabled={isRefreshing || isReordering}
                   title="Refresh videos"
                 >
                   <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                 </button>
-                {/* <button
+                <button
                   className="btn btn-primary btn-sm"
                   onClick={handleAddNewClick}
+                  disabled={isReordering}
                 >
                   <Plus className="w-4 h-4 mr-2" /> Add Video
-                </button> */}
+                </button>
               </div>
             </div>
 
@@ -255,109 +448,90 @@ const YoutubeVideoLayout = () => {
             <div className="overflow-x-auto mt-4">
               <div className="w-full">
                 {videos.length > 0 ? (
-                  <table className="table table-compact w-full">
-                    <thead>
-                      <tr className="text-neutral-content">
-                        <th className="w-2/5">Video</th>
-                        <th className="w-2/5">URL</th>
-                        <th className="text-right w-1/5">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {videos.map((video) => (
-                        <tr key={video.id} className="hover:bg-base-300/10">
-                          <td className="align-top">
-                            <div className="flex items-center gap-3">
-                              <div className="avatar">
-                                <div className="w-16 h-10 rounded">
-                                  <img 
-                                    src={video.thumbnailUrl} 
-                                    alt={video.title}
-                                    onError={(e) => {
-                                      // If image fails to load, use default placeholder
-                                      e.target.src = "https://via.placeholder.com/160x90?text=No+Thumbnail";
-                                    }} 
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <div className="font-medium text-sm">{video.title}</div>
-                                <div className="text-xs opacity-70 max-w-xs truncate">{video.description}</div>
-                              </div>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    modifiers={[restrictToVerticalAxis]}
+                  >
+                    <table className="table table-compact w-full">
+                      <thead>
+                        <tr className="text-neutral-content">
+                          <th className="w-10">
+                            <div className="tooltip tooltip-right" data-tip="Drag to reorder">
+                              <GripVertical className="w-4 h-4 text-gray-500 mx-auto" />
                             </div>
-                          </td>
-                          <td className="align-middle">
-                            {editing === video.id ? (
-                              <input
-                                type="text"
-                                value={newLink}
-                                onChange={(e) => setNewLink(e.target.value)}
-                                className="input input-bordered input-sm w-full"
-                                disabled={isSaving}
-                              />
-                            ) : (
-                              <div className="flex items-center gap-2">
-                                <span className="truncate text-xs sm:text-sm max-w-xs font-mono">
-                                  {video.youtubeUrl}
-                                </span>
-                                <button
-                                  onClick={() => copyToClipboard(video.youtubeUrl)}
-                                  className="btn btn-ghost btn-xs"
-                                  title="Copy to clipboard"
-                                >
-                                  <LinkIcon className="w-4 h-4" />
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                          <td className="text-right">
-                            <div className="flex justify-end space-x-2">
-                              {/* {editing === video.id ? (
-                                <>
-                                  <button
-                                    className="btn btn-success btn-xs"
-                                    onClick={handleSaveClick}
-                                    disabled={isSaving}
-                                  >
-                                    {isSaving ? (
-                                      <span className="flex items-center">
-                                        <Loader className="w-3 h-3 mr-1 animate-spin" />
-                                        Saving
-                                      </span>
-                                    ) : "Save"}
-                                  </button>
-                                  <button
-                                    className="btn btn-error btn-xs"
-                                    onClick={() => setEditing(null)}
-                                    disabled={isSaving}
-                                  >
-                                    Cancel
-                                  </button>
-                                </>
-                              ) : ( */}
-                                <>
-                                  {/* <button
-                                    className="btn btn-primary btn-xs"
-                                    onClick={() => handleEditClick(video.id)}
-                                    title="Edit"
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </button> */}
-                                  <button
-                                    className="btn btn-error btn-xs"
-                                    onClick={() => handleDeleteClick(video.id)}
-                                    title="Delete"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </>
-                              {/* )} */}
-                            </div>
-                          </td>
+                          </th>
+                          {showOrderColumn && <th className="w-14">Order</th>}
+                          <th className="w-2/5">Video</th>
+                          <th className="w-2/5">URL</th>
+                          <th className="text-right w-1/5">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        <SortableContext
+                          items={videos.map(video => video.id)}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          {videos.map((video) => (
+                            <SortableVideoItem
+                              key={video.id}
+                              video={video}
+                              onEditClick={handleEditClick}
+                              onDeleteClick={handleDeleteClick}
+                              copyToClipboard={copyToClipboard}
+                              showOrder={showOrderColumn}
+                            />
+                          ))}
+                        </SortableContext>
+                      </tbody>
+                    </table>
+                    
+                    {/* Drag overlay */}
+                    <DragOverlay>
+                      {activeId ? (
+                        <table className="table table-compact w-full shadow-lg bg-base-100 opacity-80">
+                          <tbody>
+                            <tr className="bg-base-300/30">
+                              <td className="w-10">
+                                <div className="flex justify-center">
+                                  <GripVertical className="w-5 h-5 text-gray-500" />
+                                </div>
+                              </td>
+                              {showOrderColumn && (
+                                <td className="w-14 text-center">
+                                  <span className="badge badge-sm">
+                                    {getActiveItem()?.position !== undefined ? getActiveItem().position + 1 : '–'}
+                                  </span>
+                                </td>
+                              )}
+                              <td className="align-top">
+                                <div className="flex items-center gap-3">
+                                  <div className="avatar">
+                                    <div className="w-16 h-10 rounded">
+                                      <img 
+                                        src={getActiveItem()?.thumbnailUrl} 
+                                        alt={getActiveItem()?.title}
+                                        onError={(e) => {
+                                          e.target.src = "https://via.placeholder.com/160x90?text=No+Thumbnail";
+                                        }} 
+                                      />
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium text-sm">{getActiveItem()?.title}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td></td>
+                              <td></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      ) : null}
+                    </DragOverlay>
+                  </DndContext>
                 ) : (
                   <div className="p-6 text-center">
                     <p className="text-neutral-content opacity-70">No YouTube videos available. Add one using the "Add Video" button.</p>
@@ -365,6 +539,16 @@ const YoutubeVideoLayout = () => {
                 )}
               </div>
             </div>
+            
+            {/* Loading overlay during reordering */}
+            {isReordering && (
+              <div className="fixed inset-0 bg-base-100/60 flex items-center justify-center z-50">
+                <div className="flex flex-col items-center bg-base-200 p-6 rounded-lg shadow-lg">
+                  <Loader className="w-8 h-8 animate-spin text-primary" />
+                  <p className="mt-4 text-neutral-content font-medium">Updating video order...</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Delete Confirmation Modal */}
