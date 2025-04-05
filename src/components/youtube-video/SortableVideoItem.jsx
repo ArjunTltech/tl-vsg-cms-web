@@ -195,60 +195,61 @@ const YoutubeVideoLayout = () => {
         </div>
 
         {/* Table Section */}
-        <div className="overflow-x-auto -mx-4 sm:mx-0">
-          <div className="min-w-full align-middle">
-            <div className="overflow-hidden">
-              {videos.length > 0 ? (
-                <table className="min-w-full divide-y divide-base-300">
-                  <thead>
-                    <tr className="text-xs sm:text-sm text-neutral-content">
-                      <th className="px-2 py-2 sm:px-4 sm:py-3 text-left">Video</th>
-                      <th className="px-2 py-2 sm:px-4 sm:py-3 text-left">URL</th>
-                      <th className="px-2 py-2 sm:px-4 sm:py-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-base-300">
-                    {videos.map((video) => (
-                      <tr key={video.id} className="hover:bg-base-300/10">
-                        <td className="px-2 py-2 sm:px-4 sm:py-3 text-neutral-content">
-                          <div className="flex items-center gap-3">
-                            <div className="avatar">
-                              <div className="w-16 h-10 rounded">
-                                <img src={video.thumbnailUrl} alt={video.title} />
-                              </div>
-                            </div>
-                            <div>
-                              <div className="font-medium text-sm">{video.title}</div>
-                              <div className="text-xs opacity-70 max-w-xs truncate">{video.description}</div>
+        <div className="overflow-x-auto mt-4">
+          <div className="w-full">
+            {videos.length > 0 ? (
+              <table className="table table-compact w-full">
+                <thead>
+                  <tr className="text-neutral-content">
+                    <th className="w-2/5">Video</th>
+                    <th className="w-2/5">URL</th>
+                    <th className="text-right w-1/5">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {videos.map((video) => (
+                    <tr key={video.id} className="hover:bg-base-300/10">
+                      <td className="align-top">
+                        <div className="flex items-center gap-3">
+                          <div className="avatar">
+                            <div className="w-16 h-10 rounded">
+                              <img src={video.thumbnailUrl} alt={video.title} />
                             </div>
                           </div>
-                        </td>
-                        <td className="px-2 py-2 sm:px-4 sm:py-3">
+                          <div>
+                            <div className="font-medium text-sm">{video.title}</div>
+                            <div className="text-xs opacity-70 max-w-xs truncate">{video.description}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="align-middle">
+                        {editing === video.id ? (
+                          <input
+                            type="text"
+                            value={newLink}
+                            onChange={(e) => setNewLink(e.target.value)}
+                            className="input input-bordered input-sm w-full"
+                            disabled={isSaving}
+                          />
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span className="truncate text-xs sm:text-sm max-w-xs font-mono">
+                              {video.youtubeUrl}
+                            </span>
+                            <button
+                              onClick={() => copyToClipboard(video.youtubeUrl)}
+                              className="btn btn-ghost btn-xs"
+                              title="Copy to clipboard"
+                            >
+                              <LinkIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                      <td className="text-right">
+                        <div className="flex justify-end space-x-2">
                           {editing === video.id ? (
-                            <input
-                              type="text"
-                              value={newLink}
-                              onChange={(e) => setNewLink(e.target.value)}
-                              className="input input-bordered input-sm w-full max-w-[120px] sm:max-w-xs"
-                              disabled={isSaving}
-                            />
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              <span className="truncate text-xs sm:text-sm max-w-[100px] sm:max-w-xs font-mono">
-                                {video.youtubeUrl}
-                              </span>
-                              <button
-                                onClick={() => copyToClipboard(video.youtubeUrl)}
-                                className="btn btn-ghost btn-xs"
-                              >
-                                <LinkIcon className="w-3 h-3 sm:w-4 sm:h-4" />
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-2 py-2 sm:px-4 sm:py-3 text-right">
-                          {editing === video.id ? (
-                            <div className="flex justify-end gap-1">
+                            <>
                               <button
                                 className="btn btn-success btn-xs"
                                 onClick={handleSaveClick}
@@ -268,34 +269,36 @@ const YoutubeVideoLayout = () => {
                               >
                                 Cancel
                               </button>
-                            </div>
+                            </>
                           ) : (
-                            <div className="flex justify-end gap-1">
+                            <>
                               <button
                                 className="btn btn-primary btn-xs"
                                 onClick={() => handleEditClick(video.id)}
+                                title="Edit"
                               >
-                                <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <Edit className="w-4 h-4" />
                               </button>
                               <button
                                 className="btn btn-error btn-xs"
                                 onClick={() => handleDeleteClick(video.id)}
+                                title="Delete"
                               >
-                                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <Trash2 className="w-4 h-4" />
                               </button>
-                            </div>
+                            </>
                           )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="p-6 text-center">
-                  <p className="text-neutral-content opacity-70">No YouTube videos available. Add one using the "Add Video" button.</p>
-                </div>
-              )}
-            </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="p-6 text-center">
+                <p className="text-neutral-content opacity-70">No YouTube videos available. Add one using the "Add Video" button.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

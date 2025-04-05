@@ -146,7 +146,7 @@ const SeoLayout = () => {
   return (
     <div className="w-full mx-auto bg-base-100 p-6 space-y-8">
       <div className="flex items-center justify-between pe-4">
-        <h2 className="text-2xl font-bold text-neutral-content">SEO Settings</h2>
+        <h2 className="text-2xl font-bold text-neutral-content">SEO Editor</h2>
         <div className="flex items-center gap-3">
           <span className="text-sm font-medium text-neutral-content">
             Selected Page:
