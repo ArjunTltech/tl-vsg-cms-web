@@ -14,36 +14,50 @@ function CaseForm({ onClientCreated, refreshClientList, initialData, mode, setIs
   const [loading,setLoading]=useState(false)
   const [errors, setErrors] = useState({});
   const validateField = (name, value, mode) => {
+    const containsNumbers = /\d/;
+  
     switch (name) {
       case 'title':
-        return value.trim().length >= 3
-          ? null
-          : "Title must be at least 3 characters long";
+        if (value.trim().length < 3) {
+          return "Title must be at least 3 characters long";
+        }
+        if (containsNumbers.test(value)) {
+          return "Title cannot contain numbers";
+        }
+        return null;
+  
       case 'description':
         return value.trim().length >= 10
           ? null
           : "Description must be at least 10 characters long";
+  
       case 'subtitle':
-        return value.trim().length >= 3
-          ? null
-          : "Subtitle  must be at least 3 characters long";
+        if (!value) return null; // optional
+        if (value.trim().length < 3) {
+          return "Subtitle must be at least 3 characters long";
+        }
+        if (containsNumbers.test(value)) {
+          return "Subtitle cannot contain numbers";
+        }
+        return null;
+  
       case 'image':
-        // Skip image validation in edit mode if no new image is provided
         if (mode === 'edit' && (value === undefined || value === null)) {
           return null;
         }
-        return value
-          ? null
-          : "Image is required";
+        return value ? null : "Image is required";
+  
       case 'author':
-        return  value.trim().length >= 3
+        if (!value) return null; // optional
+        return value.trim().length >= 3
           ? null
           : "Author must be at least 3 characters long";
-
+  
       default:
         return null;
     }
   };
+  
   useEffect(() => {
     if (mode === "edit" && initialData) {
       setTitle(initialData.title || "");
@@ -97,27 +111,28 @@ function CaseForm({ onClientCreated, refreshClientList, initialData, mode, setIs
       formData.append("description", description);
       const newErrors = {};
 
+      const titleError = validateField('title', title);
+      if (titleError) newErrors.title = titleError;
+      const subtitleError = validateField('subtitle', subTitle);
+      if (subtitleError) newErrors.subtitle = subtitleError;
+
+      const descriptionError = validateField('description', description, mode);
+      if (descriptionError) newErrors.description = descriptionError;
+
+      const authorError = validateField('author', author, mode);
+      if (authorError) newErrors.author = authorError;
+
+      const imageError = validateField('image', imageFile, mode);
+      if (imageError) newErrors.image = imageError;
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
       if (mode === "add") {
-        const titleError = validateField('title', title);
-        if (titleError) newErrors.title = titleError;
-        const subtitleError = validateField('subtitle', subTitle);
-        if (subtitleError) newErrors.subtitle = subtitleError;
-
-        const descriptionError = validateField('description', description, mode);
-        if (descriptionError) newErrors.description = descriptionError;
-
-        const authorError = validateField('author', author, mode);
-        if (authorError) newErrors.author = authorError;
-
-        const imageError = validateField('image', imageFile, mode);
-        if (imageError) newErrors.image = imageError;
-        if (Object.keys(newErrors).length > 0) {
-          setErrors(newErrors);
-          return;
-        }
 
 
         if (imageFile) {
+          
           formData.append("image", imageFile);
         }
       setLoading(!loading)
@@ -139,6 +154,11 @@ function CaseForm({ onClientCreated, refreshClientList, initialData, mode, setIs
             image: "Image is required"
           }));
           return
+        }
+
+        if (imageFile) {
+          
+          formData.append("image", imageFile);
         }
         const response = await axiosInstance.put(
           `/casestudy/update-casestudy/${initialData.id}`,
@@ -171,13 +191,14 @@ function CaseForm({ onClientCreated, refreshClientList, initialData, mode, setIs
 const onCancel= ()=>{
   setIsDrawerOpen(false);
   setErrors({})
+  resetForm()
 }
   return (
     <form onSubmit={handleSubmit}>
       {/* Title Input */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Title</span>
+          <span className="label-text">Title <span className="text-error">*</span></span>
         </label>
         <input
           type="text"
@@ -244,7 +265,7 @@ const onCancel= ()=>{
       {/* Content Input */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Description</span>
+          <span className="label-text">Description <span className="text-error">*</span></span>
         </label>
         <textarea
           className="textarea textarea-bordered"
@@ -268,7 +289,7 @@ const onCancel= ()=>{
       {/* Image Upload */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Image</span>
+          <span className="label-text">Image <span className="text-error">*</span></span>
         </label>
         <div
           className="border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-center cursor-pointer bg-base-100"

@@ -14,7 +14,7 @@ function BlogCard({ blog, onDelete, onEdit }) {
     try {
       await axiosInstance.delete(`/blog/delete-blog/${blog.id}`);
       onDelete(blog.id);
-      toast.success("Blog post deleted successfully!");
+      toast.success("Blog  deleted successfully!");
     } catch (error) {
       console.error("Error deleting blog:", error);
       toast.error("Failed to delete the blog post. Please try again.");
@@ -66,8 +66,8 @@ function BlogCard({ blog, onDelete, onEdit }) {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
         isLoading={isLoading} 
-        title="Delete Blog Post"
-        message="Are you sure you want to delete this blog post?"
+        title="Delete Blog "
+        message="Are you sure you want to delete this blog ?"
       />
     </>
   );

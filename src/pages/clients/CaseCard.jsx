@@ -75,7 +75,7 @@ const CaseCard = ({ casestudy, onDelete, onEdit }) => {
         onConfirm={handleDelete}
         isLoading={isLoading} // Pass loading state to the modal
         title="Delete Case"
-        message="Are you sure you want to delete this case?"
+        message="Are you sure you want to delete this case study?"
       />
     </>
   );
