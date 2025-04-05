@@ -117,7 +117,7 @@ const CareerLayout = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-base-100">
-                  <th className="p-3 text-left">Position</th>
+                  <th className="p-3 text-left">Positions</th>
                   <th className="p-3 text-left">Location</th>
                   <th className="p-3 text-left">Job Type</th>
                   <th className="p-3 text-left">Description</th>

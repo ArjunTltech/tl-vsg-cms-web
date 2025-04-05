@@ -76,15 +76,15 @@ function CaseLayout() {
           <div className="flex justify-between items-center mb-8">
           <div className=' space-y-2'>
 
-            <h1 className="text-3xl font-bold text-neutral-content">Case Study</h1>
-            <p >Total Casestudy : {caseStudy.length}</p>
+            <h1 className="text-3xl font-bold text-neutral-content">Case Studies</h1>
+            <p >Total Case Studies : {caseStudy.length}</p>
             </div>
 
             <button
               className="btn btn-primary text-white gap-2"
               onClick={handleAddNewClient}
             >
-              + New Case Study
+              + New Case Studie
             </button>
           </div>
 
