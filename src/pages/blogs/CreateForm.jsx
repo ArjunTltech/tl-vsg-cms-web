@@ -165,6 +165,16 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       [name]: errorMessage
     }));
   };
+  const resetForm=()=>{
+    setTitle("");
+      setAuthor("");
+      setDate("");
+      setExcerpt("");
+      setContent("");
+      setImageFile(null);
+      setImagePreview(null);
+      setIsDrawerOpen(false);
+  }
 
   // Form submission validation
   const validateForm = () => {
@@ -210,8 +220,8 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
 
     try {
       let response;
+      setLoading(!loading)
       if (mode === "add") {
-        setLoading(!loading)
         let response = await axiosInstance.post("/blog/create-blog", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -239,14 +249,8 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       }
 
       // Reset form
-      setTitle("");
-      setAuthor("");
-      setDate("");
-      setExcerpt("");
-      setContent("");
-      setImageFile(null);
-      setImagePreview(null);
-      setIsDrawerOpen(false);
+      resetForm()
+      
     } catch (error) {
       console.error("Error handling blog post:", error);
       toast.error("Failed to save blog post. Please try again.");
@@ -290,6 +294,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   const onCancel= ()=>{
     setIsDrawerOpen(false);
     setErrors({})
+    resetForm()
   }
 
   return (
@@ -297,7 +302,8 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       {/* Title Input */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Title</span>
+          <span className="label-text">Title   <span className="text-error"> *</span>
+          </span>
         </label>
         <input
           type="text"
@@ -313,7 +319,8 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       {/* Author Input */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Author</span>
+          <span className="label-text">Author         <span className="text-error"> *</span>
+          </span>
         </label>
         <input
           type="text"
@@ -329,7 +336,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       {/* Date Input */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Date</span>
+          <span className="label-text">Date <span className="text-error"> *</span></span>
         </label>
         <input
           type="date"
@@ -344,7 +351,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       {/* Excerpt Input */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Excerpt</span>
+          <span className="label-text">Excerpt <span className="text-error"> *</span></span>
         </label>
         <textarea
           name="excerpt"
@@ -359,7 +366,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       {/* Image Upload */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Image</span>
+          <span className="label-text">Image <span className="text-error"> *</span></span>
         </label>
         <div
           className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-center cursor-pointer ${errors.image ? 'border-error' : 'border-neutral'}`}
@@ -414,7 +421,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       {/* Content Input */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Content</span>
+          <span className="label-text">Content <span className="text-error"> *</span></span>
         </label>
         <textarea
           name="content"
