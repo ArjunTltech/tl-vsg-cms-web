@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { Plus, Pencil, Trash2, Eye } from 'lucide-react';
 import { toast } from 'react-toastify';
 import CareerForm from './CareerForm';
 import axiosInstance from '../../config/axios';
@@ -14,6 +13,7 @@ const CareerLayout = () => {
   const [mode, setMode] = useState("add");
   const [careerToDelete, setCareerToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [viewDescriptionCareer, setViewDescriptionCareer] = useState(null);
 
   const refreshCareers = useCallback(async () => {
     try {
@@ -62,33 +62,12 @@ const CareerLayout = () => {
     }
   };
 
-//   const handleDragEnd = async (result) => {
-//     const { source, destination } = result;
-//     if (!destination) return;
-
-//     const reorderedCareers = Array.from(careers);
-//     const [removed] = reorderedCareers.splice(source.index, 1);
-//     reorderedCareers.splice(destination.index, 0, removed);
-
-//     const updatedCareers = reorderedCareers.map((career, index) => ({
-//       ...career,
-//       order: index + 1,
-//     }));
-
-//     setCareers(updatedCareers);
-
-//     try {
-//       for (const career of updatedCareers) {
-//         await axiosInstance.put(`/career/update-career/${career.id}`, {
-//           career
-          
-//         });
-//       }
-//     } catch (err) {
-//       console.error('Error updating Career order:', err);
-//       toast.error('Failed to update Career order');
-//     }
-//   };
+  // Function to truncate text and add ellipsis
+  const truncateText = (text, maxLength = 50) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
 
   return (
     <div className="min-h-screen relative">
@@ -129,12 +108,23 @@ const CareerLayout = () => {
                 {careers.map((career) => (
                   <tr key={career.id} className="border-b border-base-300 bg-base-200">
                     <td className="p-3 font-semibold text-accent">{career.position}</td>
-                    <td className="p-3 text-gray-300"> {career.location}</td>
-                    <td className="p-3 text-gray-300"> {career.jobType}</td>
-                    <td className="p-3 text-gray-300">{career.shortdescription}</td>
-                    <td className="p-3 text-gray-300">{career.positionCount}</td>
+                    <td className="p-3 ">{career.location}</td>
+                    <td className="p-3 ">{career.jobType}</td>
+                    <td className="p-3 ">
+                      <div className="flex items-center gap-2">
+                        {truncateText(career.shortdescription)}
+                       
+                      </div>
+                    </td>
+                    <td className="p-3 ">{career.positionCount}</td>
                     <td className="p-3">
                       <div className="flex justify-center space-x-2">
+                        <button 
+                          className="btn btn-sm btn-square btn-ghost" 
+                          onClick={() => setViewDescriptionCareer(career)}
+                        >
+                          <Eye className="w-5 h-5 text-info" />
+                        </button>
                         <button 
                           className="btn btn-sm btn-square btn-ghost" 
                           onClick={() => handleEditCareer(career)}
@@ -186,6 +176,60 @@ const CareerLayout = () => {
         message="Are you sure you want to delete this Career? This action cannot be undone."
         isLoading={isDeleting}
       />
+    )}
+
+    {/* Enhanced Description View Modal */}
+    {viewDescriptionCareer && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-base-100 p-6 rounded-lg shadow-lg w-full max-w-lg">
+          <h3 className="text-xl font-bold mb-4 text-accent">{viewDescriptionCareer.position}</h3>
+          
+          <div className="grid grid-cols-1 gap-4 mb-6">
+            <div>
+              <p className="text-sm  mb-1">Location</p>
+              <p className="">{viewDescriptionCareer.location}</p>
+            </div>
+            
+            <div>
+              <p className="text-sm mb-1">Job Type</p>
+              <p className="">{viewDescriptionCareer.jobType}</p>
+            </div>
+            
+            <div>
+              <p className="text-sm mb-1">Number of Openings</p>
+              <p className="">{viewDescriptionCareer.positionCount}</p>
+            </div>
+            
+            <div>
+              <p className="text-sm  mb-1">Description</p>
+              <p className=" whitespace-pre-line">{viewDescriptionCareer.shortdescription}</p>
+            </div>
+
+            {viewDescriptionCareer.requirements && (
+              <div>
+                <p className="text-sm  mb-1">Requirements</p>
+                <p className="whitespace-pre-line">{viewDescriptionCareer.requirements}</p>
+              </div>
+            )}
+            
+            {viewDescriptionCareer.benefits && (
+              <div>
+                <p className="text-sm  mb-1">Benefits</p>
+                <p className=" whitespace-pre-line">{viewDescriptionCareer.benefits}</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex justify-end mt-4">
+            <button 
+              className="btn btn-primary" 
+              onClick={() => setViewDescriptionCareer(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
     )}
   </div>
   );

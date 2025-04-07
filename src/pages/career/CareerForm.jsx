@@ -58,8 +58,8 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
         if (len === 0) {
           return "Short description is required";
         }
-        if (len < 10 || len > 1000) {
-          return "Short description must be between 10 and 1000 characters long";
+        if (len < 10 || len > 2000) {
+          return "Short description must be between 10 and 2000 characters long";
         }
         return null;
   
