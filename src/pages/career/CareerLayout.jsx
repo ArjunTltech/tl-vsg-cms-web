@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { toast } from 'react-toastify';
-import axiosInstance from '../../../config/axios';
-import DeleteConfirmModal from '../../../components/ui/modal/DeleteConfirmModal';
 import CareerForm from './CareerForm';
+import axiosInstance from '../../config/axios';
+import DeleteConfirmModal from '../../components/ui/modal/DeleteConfirmModal';
 // import CareerForm from '../../career/CareerForm';
 
 const CareerLayout = () => {

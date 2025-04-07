@@ -33,8 +33,8 @@ import OrganizationDetails from '../pages/organization-details/OrganizationDetai
 import ServiceLayout from '../pages/services/ServiceLayout.jsx';
 import SpecialSymbol from './SpecialSymbol.jsx';
 import CaseLayout from '../pages/clients/CaseLayout.jsx';
-import CareerLayout from '../pages/clients/career/CareerLayout.jsx';
 import VideoReorderPage from '../pages/youTube-Videos/VideoReorderPage.jsx';
+import CareerLayout from '../pages/career/CareerLayout.jsx';
 
 
 export const router = createBrowserRouter([

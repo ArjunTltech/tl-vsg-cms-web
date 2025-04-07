@@ -84,7 +84,7 @@ function CaseLayout() {
               className="btn btn-primary text-white gap-2"
               onClick={handleAddNewClient}
             >
-              + New Case Studie
+              + New Case Studies
             </button>
           </div>
 
