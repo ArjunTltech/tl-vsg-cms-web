@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import axiosInstance from '../../../config/axios';
-import playNotificationSound from '../../../utils/playNotification';
+import axiosInstance from '../../config/axios';
+import playNotificationSound from '../../utils/playNotification';
 
 function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, careers }) {
   const [career, setCareer] = useState({
@@ -58,8 +58,8 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
         if (len === 0) {
           return "Short description is required";
         }
-        if (len < 10 || len > 100) {
-          return "Short description must be between 10 and 100 characters long";
+        if (len < 10 || len > 1000) {
+          return "Short description must be between 10 and 1000 characters long";
         }
         return null;
   
@@ -72,6 +72,7 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
         return null;
     }
   };
+  
   
 
   const handleSubmit = async (event) => {
