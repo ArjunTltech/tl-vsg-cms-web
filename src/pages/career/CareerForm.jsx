@@ -42,17 +42,17 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
         return value.trim().length < 3
           ? "Position must be at least 3 characters long"
           : null;
-  
+
       case 'positionCount':
         return isNaN(value) || value < 1
           ? "Position count must be a valid number greater than 0"
           : null;
-  
+
       case 'location':
         return value.trim().length < 3
           ? "Location must be at least 3 characters long"
           : null;
-  
+
       case 'shortdescription':
         const len = value.trim().length;
         if (len === 0) {
@@ -62,18 +62,18 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
           return "Short description must be between 10 and 2000 characters long";
         }
         return null;
-  
+
       case 'jobType':
         return value === ''
           ? "Job type is required"
           : null;
-  
+
       default:
         return null;
     }
   };
-  
-  
+
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -87,7 +87,7 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
       setErrors(newErrors);
       return;
     }
-    
+
     if (isSubmitting) return;
 
     try {
@@ -181,9 +181,24 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
         </select>
         {errors.jobType && <p className="text-error text-sm mt-1">{errors.jobType}</p>}
       </div>
+
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Short Description 
-        <span className="text-error">*</span>
+        <label className="block text-sm font-medium mb-1">
+          Short Description
+          <span className="text-error">*</span>
+          <div className="float-right flex items-center gap-1">
+            <span className={`text-xs ${career.shortdescription.length >= 2000 ? 'text-error' :
+                career.shortdescription.length >= 1800 ? 'text-warning' :
+                  career.shortdescription.length < 10 ? 'text-gray-500' : 'text-green-500'
+
+              }`}>Limit:</span>
+            <span className={`text-xs ${career.shortdescription.length >= 2000 ? 'text-error' :
+                career.shortdescription.length >= 1800 ? 'text-warning' :
+                  career.shortdescription.length < 10 ? 'text-gray-500' : 'text-green-500'
+              }`}>
+              {career.shortdescription.length}/2000
+            </span>
+          </div>
         </label>
         <textarea
           placeholder="Enter Short Description"
@@ -191,10 +206,19 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
           rows="4"
           value={career.shortdescription}
           onChange={(e) => {
-            setCareer({ ...career, shortdescription: e.target.value });
-            setErrors(prev => ({ ...prev, shortdescription: validateField('shortdescription', e.target.value) }));
+            // Optionally limit input to 2000 characters
+            const value = e.target.value.slice(0, 2000);
+            setCareer({ ...career, shortdescription: value });
+            setErrors(prev => ({ ...prev, shortdescription: validateField('shortdescription', value) }));
           }}
         ></textarea>
+        {career.shortdescription.length >= 1800 && (
+          <p className={`text-xs mt-1 ${career.shortdescription.length >= 2000 ? 'text-error' : 'text-warning'}`}>
+            {career.shortdescription.length >= 2000 ?
+              "Character limit reached." :
+              "Approaching character limit."}
+          </p>
+        )}
         {errors.shortdescription && <p className="text-error text-sm mt-1">{errors.shortdescription}</p>}
       </div>
 
