@@ -12,7 +12,8 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-    const [loading,setLoading]=useState(false)
+  const [loading, setLoading] = useState(false);
+  const [imageWasRemoved, setImageWasRemoved] = useState(false);
   
   // Validation errors
   const [errors, setErrors] = useState({
@@ -89,9 +90,17 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   };
 
   const validateImage = (file) => {
+    // For add mode, image is always required
     if (mode === "add" && !file) {
       return "Image is required";
     }
+    
+    // For edit mode, image is required if original was removed
+    if (mode === "edit" && imageWasRemoved && !file) {
+      return "Image is required";
+    }
+    
+    // Validate file type and size if a file is selected
     if (file) {
       const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!validTypes.includes(file.type)) {
@@ -102,6 +111,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
         return "Image size cannot exceed 5MB";
       }
     }
+    
     return "";
   };
 
@@ -132,11 +142,12 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
 
     if (name === 'image') {
       const file = files[0];
-      errorMessage = validateField('image', file);
       if (file) {
         setImageFile(file);
         setImagePreview(URL.createObjectURL(file));
+        setImageWasRemoved(false);
       }
+      errorMessage = validateField('image', file);
     } else {
       // For text inputs
       switch (name) {
@@ -165,15 +176,17 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       [name]: errorMessage
     }));
   };
-  const resetForm=()=>{
+  
+  const resetForm = () => {
     setTitle("");
-      setAuthor("");
-      setDate("");
-      setExcerpt("");
-      setContent("");
-      setImageFile(null);
-      setImagePreview(null);
-      setIsDrawerOpen(false);
+    setAuthor("");
+    setDate("");
+    setExcerpt("");
+    setContent("");
+    setImageFile(null);
+    setImagePreview(null);
+    setImageWasRemoved(false);
+    setIsDrawerOpen(false);
   }
 
   // Form submission validation
@@ -203,7 +216,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
 
     // Validate entire form before submission
     if (!validateForm()) {
-      toast.error("Please correct the errors in the form.");
+      toast.error("Please fill in all required fields before submitting.");
       return;
     }
 
@@ -214,24 +227,29 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     formData.append("excerpt", excerpt);
     formData.append("content", content);
 
+    // Include image removed flag for edit mode
+    if (mode === "edit" && imageWasRemoved) {
+      formData.append("imageRemoved", "true");
+    }
+
     if (imageFile) {
       formData.append("image", imageFile);
     }
 
     try {
+      setLoading(true);
       let response;
-      setLoading(!loading)
+      
       if (mode === "add") {
-        let response = await axiosInstance.post("/blog/create-blog", formData, {
+        response = await axiosInstance.post("/blog/create-blog", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
-        toast.success(response.data.message ||"Blog post created successfully!");
-        setLoading(false)
+        toast.success(response.data.message || "Blog post created successfully!");
 
       } else if (mode === "edit" && initialData) {
-        const response = await axiosInstance.put(
+        response = await axiosInstance.put(
           `/blog/update-blog/${initialData.id}`,
           formData,
           {
@@ -240,8 +258,8 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
             },
           }
         );
-        playNotificationSound()
-        toast.success(response.data.message ||"Blog post updated successfully!");
+        playNotificationSound();
+        toast.success(response.data.message || "Blog post updated successfully!");
       }
 
       if (onBlogCreated) {
@@ -249,17 +267,36 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       }
 
       // Reset form
-      resetForm()
+      resetForm();
       
     } catch (error) {
       console.error("Error handling blog post:", error);
       toast.error("Failed to save blog post. Please try again.");
-    }    
-    finally {
+    } finally {
       setLoading(false); // Hide loader after submission
     }
   };
 
+  // Handle image removal
+  const handleRemoveImage = (e) => {
+    // Prevent click event from bubbling up to the container
+    e.stopPropagation();
+    
+    setImageFile(null);
+    setImagePreview(null);
+    setImageWasRemoved(true);
+    
+    // Validate image field after removal
+    const imageError = validateImage(null);
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      image: imageError
+    }));
+    
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  };
 
   // Existing useEffect for populating form in edit mode
   useEffect(() => {
@@ -270,6 +307,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       setExcerpt(initialData.excerpt || "");
       setContent(initialData.content || "");
       setImagePreview(initialData.image || null);
+      setImageWasRemoved(false);
     } else if (mode === "add") {
       // Reset all fields
       setTitle("");
@@ -279,8 +317,9 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       setContent("");
       setImageFile(null);
       setImagePreview(null);
-       // Completely clear all error messages
-       setErrors({
+      setImageWasRemoved(false);
+      // Completely clear all error messages
+      setErrors({
         title: "",
         author: "",
         date: "",
@@ -291,10 +330,10 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     }
   }, [mode, initialData]);
 
-  const onCancel= ()=>{
+  const onCancel = () => {
     setIsDrawerOpen(false);
-    setErrors({})
-    resetForm()
+    setErrors({});
+    resetForm();
   }
 
   return (
@@ -302,7 +341,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       {/* Title Input */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Title   <span className="text-error"> *</span>
+          <span className="label-text">Title <span className="text-error"> *</span>
           </span>
         </label>
         <input
@@ -319,7 +358,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       {/* Author Input */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Author         <span className="text-error"> *</span>
+          <span className="label-text">Author <span className="text-error"> *</span>
           </span>
         </label>
         <input
@@ -394,13 +433,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
               <button
                 type="button"
                 className="absolute top-2 right-2 btn btn-xs btn-error"
-                onClick={() => {
-                  setImageFile(null);
-                  setImagePreview(null);
-                  if (inputRef.current) {
-                    inputRef.current.value = "";
-                  }
-                }}
+                onClick={handleRemoveImage}
               >
                 Remove
               </button>
@@ -429,20 +462,20 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
           placeholder="Write your post content..."
           value={content}
           onChange={handleInputChange}
+          rows={6}
         ></textarea>
         {errors.content && <p className="text-error text-sm mt-1">{errors.content}</p>}
       </div>
 
       {/* Publish Button */}
-      <div className="form-control ">
+      <div className="form-control mt-6 flex flex-col gap-2">
         <button type="submit" className="btn btn-primary" disabled={loading}>
-        {loading && <span className="spinner-border spinner-border-sm me-2"></span>}
-
-          {loading ? (mode === "add" ? "Creating..." : "Updating.."): mode === "add" ? "Create" : "Update"}
+          {loading && <span className="spinner-border spinner-border-sm me-2"></span>}
+          {loading ? (mode === "add" ? "Creating..." : "Updating...") : mode === "add" ? "Create" : "Update"}
         </button>
-        <button type="button" className="btn " onClick={onCancel}>
-    Cancel
-  </button>
+        <button type="button" className="btn" onClick={onCancel}>
+          Cancel
+        </button>
       </div>
     </form>
   );

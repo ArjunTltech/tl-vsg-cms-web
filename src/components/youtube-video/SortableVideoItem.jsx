@@ -122,6 +122,12 @@ const SortableVideoItem = ({ video, onEditClick, onDeleteClick, copyToClipboard,
   );
 };
 
+
+
+
+
+// Main component for managing YouTube videos
+
 const YoutubeVideoLayout = () => {
   // State for managing video links
   const [videos, setVideos] = useState([]);

@@ -178,49 +178,55 @@ const CareerLayout = () => {
       />
     )}
 
-    {/* Enhanced Description View Modal */}
+    {/* Enhanced Description View Modal with Scrollable Description Fields */}
     {viewDescriptionCareer && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-base-100 p-6 rounded-lg shadow-lg w-full max-w-lg">
+        <div className="bg-base-100 p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] flex flex-col">
           <h3 className="text-xl font-bold mb-4 text-accent">{viewDescriptionCareer.position}</h3>
           
           <div className="grid grid-cols-1 gap-4 mb-6">
             <div>
-              <p className="text-sm  mb-1">Location</p>
-              <p className="">{viewDescriptionCareer.location}</p>
+              <p className="text-sm mb-1">Location</p>
+              <p>{viewDescriptionCareer.location}</p>
             </div>
             
             <div>
               <p className="text-sm mb-1">Job Type</p>
-              <p className="">{viewDescriptionCareer.jobType}</p>
+              <p>{viewDescriptionCareer.jobType}</p>
             </div>
             
             <div>
               <p className="text-sm mb-1">Number of Openings</p>
-              <p className="">{viewDescriptionCareer.positionCount}</p>
+              <p>{viewDescriptionCareer.positionCount}</p>
             </div>
             
             <div>
-              <p className="text-sm  mb-1">Description</p>
-              <p className=" whitespace-pre-line">{viewDescriptionCareer.shortdescription}</p>
+              <p className="text-sm mb-1">Description</p>
+              <div className="max-h-40 overflow-y-auto border border-base-300 rounded p-2 bg-base-200">
+                <p className="whitespace-pre-line">{viewDescriptionCareer.shortdescription}</p>
+              </div>
             </div>
 
             {viewDescriptionCareer.requirements && (
               <div>
-                <p className="text-sm  mb-1">Requirements</p>
-                <p className="whitespace-pre-line">{viewDescriptionCareer.requirements}</p>
+                <p className="text-sm mb-1">Requirements</p>
+                <div className="max-h-40 overflow-y-auto border border-base-300 rounded p-2 bg-base-200">
+                  <p className="whitespace-pre-line">{viewDescriptionCareer.requirements}</p>
+                </div>
               </div>
             )}
             
             {viewDescriptionCareer.benefits && (
               <div>
-                <p className="text-sm  mb-1">Benefits</p>
-                <p className=" whitespace-pre-line">{viewDescriptionCareer.benefits}</p>
+                <p className="text-sm mb-1">Benefits</p>
+                <div className="max-h-40 overflow-y-auto border border-base-300 rounded p-2 bg-base-200">
+                  <p className="whitespace-pre-line">{viewDescriptionCareer.benefits}</p>
+                </div>
               </div>
             )}
           </div>
           
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end mt-2">
             <button 
               className="btn btn-primary" 
               onClick={() => setViewDescriptionCareer(null)}

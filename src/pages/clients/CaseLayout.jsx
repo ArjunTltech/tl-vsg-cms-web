@@ -21,8 +21,8 @@ function CaseLayout() {
       const response = await axiosInstance.get("/casestudy/get-all-casestudy");      
       setCaseStudy(response.data.data);
     } catch (err) {
-      setError("Failed to load casestudy");
-      console.error("Error fetching casestudy:", err);
+      setError("Failed to load case studies");
+      console.error("Error fetching case studies:", err);
     } finally {
       setLoading(false);
     }
