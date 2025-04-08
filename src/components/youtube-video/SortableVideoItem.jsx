@@ -64,7 +64,7 @@ const SortableVideoItem = ({ video, onEditClick, onDeleteClick, copyToClipboard,
       </td>
       {showOrder && (
         <td className="w-14 text-center">
-          <span className="badge badge-sm">{video.position !== undefined ? video.position + 1 : '–'}</span>
+          <span className="badge badge-sm">{video.position !== undefined ? video.position + 1 :  index + 1}</span>
         </td>
       )}
       <td className="align-top">
@@ -175,9 +175,14 @@ const YoutubeVideoLayout = () => {
         // If position exists, sort by it, otherwise maintain original order
         return (a.position ?? Infinity) - (b.position ?? Infinity);
       });
+          // Then ensure all videos have a position property
+    const videosWithPositions = sortedVideos.map((video, index) => ({
+      ...video,
+      position: video.position !== undefined ? video.position : index
+    }));
       
-      setVideos(sortedVideos);
-      setActiveVideoCount(sortedVideos.length);
+      setVideos(videosWithPositions);
+      setActiveVideoCount(videosWithPositions.length);
       setError(null);
     } catch (err) {
       setError("Failed to load YouTube videos");
