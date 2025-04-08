@@ -14,10 +14,10 @@ const CaseCard = ({ casestudy, onDelete, onEdit }) => {
     try {
      const response= await axiosInstance.delete(`casestudy/delete-casestudy/${casestudy.id}`);
       onDelete(casestudy.id);
-      toast.success(response.data.message||"Client deleted successfully!");
+      toast.success(response.data.message||"case studies deleted successfully!");
     } catch (error) {
-      console.error("Error deleting client:", error);
-      toast.error("Failed to delete client.");
+      console.error("Error deleting case studies:", error);
+      toast.error("Failed to delete case studies.");
     } finally {
       setIsLoading(false);
       setShowDeleteModal(false);
@@ -74,8 +74,8 @@ const CaseCard = ({ casestudy, onDelete, onEdit }) => {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
         isLoading={isLoading} // Pass loading state to the modal
-        title="Delete Case"
-        message="Are you sure you want to delete this case study?"
+        title="Delete Case Studies"
+        message="Are you sure you want to delete this case studies?"
       />
     </>
   );

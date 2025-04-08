@@ -181,8 +181,8 @@ function CaseForm({ onClientCreated, refreshClientList, initialData, mode, setIs
       resetForm();
       setIsDrawerOpen(false);
     } catch (error) {
-      console.error("Error handling casestudy:", error);
-      toast.error("Failed to save casestudy. Please try again.");
+      console.error("Error handling case studies:", error);
+      toast.error("Failed to save case studies. Please try again.");
     }
     finally {
       setLoading(false); // Hide loader after submission
