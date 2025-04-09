@@ -28,7 +28,7 @@ const schema = yup.object().shape({
 });
 
 const SeoLayout = () => {
-  const pages = ['home', 'about', 'services', 'faq', 'testimonials', 'contact', 'privacy-policy', 'terms'];
+  const pages = ['home', 'about', 'services', 'case-Studies', 'blogs','careers' ,'faqs', 'testimonials', 'contact', 'privacy-policy', 'terms'];
   const [selectedPage, setSelectedPage] = React.useState('home');
   const [isLoading, setIsLoading] = React.useState(false);
 
