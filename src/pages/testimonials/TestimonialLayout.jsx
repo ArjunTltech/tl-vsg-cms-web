@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Star, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Plus, Pencil, Trash2, Star, ChevronRight, ChevronLeft, Loader } from 'lucide-react';
 import axiosInstance from '../../config/axios';
 import TestimonialForm from './TestimonialForm';
 import { toast } from 'react-toastify';
@@ -11,23 +11,32 @@ const TestimonialLayout = () => {
   const [mode, setMode] = useState("add");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [testimonialToDelete, setTestimonialToDelete] = useState(null);
-  const [testimonialData,setTestimonialData]=useState([])
+  const [testimonialData, setTestimonialData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const itemsPerPage = 4;
+
   const refreshTestimonialList = useCallback(async () => {
     try {
-      const response = await axiosInstance.get('/contents/testimonials');
-      setTestimonialData(response.data.data)  
-      const testimonialsData = response.data.data.slice(0, 4); // Show only the first 4
-      setTestimonials(testimonialsData);
-  
+      const response = await axiosInstance.get('/contents/testimonials');   
+      setTestimonialData(response.data.data);
+      
+      // Show the first page of testimonials
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const testimonialsToShow = response.data.data.slice(startIndex, startIndex + itemsPerPage);
+      setTestimonials(testimonialsToShow);
     } catch (err) {
       console.error('Error fetching testimonials:', err);
       toast.error('Failed to load testimonials');
     }
-  }, []);
+  }, [currentPage]);
 
   useEffect(() => {
     refreshTestimonialList();
   }, [refreshTestimonialList]);
+
+  // Calculate total pages correctly
+  const totalPages = Math.ceil(testimonialData.length / itemsPerPage);
 
   const handleAddNew = () => {
     setEditTestimonial(null);
@@ -42,51 +51,43 @@ const TestimonialLayout = () => {
   };
 
   const handleDelete = async (id) => {
+    setIsDeleting(true);
     try {
       await axiosInstance.delete(`/contents/testimonial/${id}`);
-      setTestimonials(testimonials.filter(t => t.id !== id));
-      setShowDeleteModal(false);
+      // After deleting, refresh the list to update pagination
+      await refreshTestimonialList();
       toast.success('Testimonial deleted successfully');
     } catch (err) {
       console.error('Error deleting testimonial:', err);
       toast.error('Failed to delete testimonial');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
     }
   };
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
-
-  const totalPages = Math.ceil(testimonialData.length / itemsPerPage)-1;
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
   const goToNextPage = () => {
-    const nextPage = currentPage + 1;
-    const startIndex = nextPage * itemsPerPage;
-    
-    if (startIndex < testimonialData.length) {
-      setCurrentPage(nextPage);
-      setTestimonials(testimonialData.slice(startIndex, startIndex + itemsPerPage)); // Set next 4 testimonials
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
     }
   };
+  
   const goToPrevPage = () => {
-    if (currentPage > 0) {
-      const prevPage = currentPage - 1;
-      const startIndex = prevPage * itemsPerPage;
-      
-      setCurrentPage(prevPage);
-      setTestimonials(testimonialData.slice(startIndex, startIndex + itemsPerPage)); // Set previous 4 testimonials
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
     }
   };
 
   // Go to specific page
   const goToPage = (pageNumber) => {
-    const startIndex = pageNumber * itemsPerPage;
-    
-    if (startIndex < testimonialData.length) {
-      setCurrentPage(pageNumber);
-      setTestimonials(testimonialData.slice(startIndex, startIndex + itemsPerPage)); // Update testimonials
-    }
+    setCurrentPage(pageNumber);
   };
+  
+  useEffect(() => {
+    // Update displayed testimonials when page changes
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    setTestimonials(testimonialData.slice(startIndex, startIndex + itemsPerPage));
+  }, [currentPage, testimonialData]);
   
   return (
     <div className="min-h-screen relative">
@@ -100,11 +101,10 @@ const TestimonialLayout = () => {
         />
         <div className="drawer-content">
           <div className="md:flex space-y-2 md:space-y-0 block justify-between items-center mb-8">
-            {/* <h1 className="text-3xl font-bold text-neutral-content">Testimonials</h1> */}
-            <div className=' space-y-2'>
-       <h1 className="text-3xl font-bold text-neutral-content">Testimonials </h1>
-       <p >Total Testimonials : {testimonialData.length}</p>
-        </div>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold text-neutral-content">Testimonials</h1>
+              <p>Total Testimonials: {testimonialData.length}</p>
+            </div>
             <button
               className="btn btn-primary gap-2"
               onClick={handleAddNew}
@@ -114,115 +114,82 @@ const TestimonialLayout = () => {
             </button>
           </div>
 
-          {/* <div className="mx-auto space-y-4">
-            {testimonials.length>0?(testimonials.map((testimonial) => (
-              <div key={testimonial.id} className="bg-base-200 p-4 rounded-lg flex justify-between items-center">
-                <div className="flex-1 select-none">
-                  <div className="text-xl font-bold text-accent">{testimonial.author}</div>
-                  <p className="text-base-content">{testimonial.text} - <span className="text-sm opacity-70 ml-2">{testimonial.position}</span></p>
-                  
-                  <div className="flex items-center space-x-1 mt-2">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-warning text-warning" />
-                    ))}
+          <div className="mx-auto space-y-4">
+            {testimonials.length > 0 ? (
+              <>
+                {testimonials.map((testimonial) => (
+                  <div key={testimonial.id} className="bg-base-200 p-4 rounded-lg flex justify-between items-center">
+                    <div className="flex-1 select-none">
+                      <div className="text-xl font-bold text-accent">{testimonial.author}</div>
+                      <p className="text-base-content">
+                        {testimonial.text} - <span className="text-sm opacity-70 ml-2">{testimonial.position}</span>
+                      </p>
+                      
+                      <div className="flex items-center space-x-1 mt-2">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-warning text-warning" />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        className="btn btn-sm btn-square btn-ghost"
+                        onClick={() => handleEdit(testimonial)}
+                      >
+                        <Pencil className="w-5 h-5 text-success" />
+                      </button>
+                      <button
+                        className="btn btn-sm btn-square btn-error"
+                        onClick={() => {
+                          setTestimonialToDelete(testimonial.id);
+                          setShowDeleteModal(true);
+                        }}
+                      >
+                        <Trash2 className="w-5 h-5 text-white" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    className="btn btn-sm btn-square btn-ghost"
-                    onClick={() => handleEdit(testimonial)}
-                  >
-                    <Pencil className="w-5 h-5 text-success" />
-                  </button>
-                  <button
-                    className="btn btn-sm btn-square btn-error"
-                    onClick={() => {
-                      setTestimonialToDelete(testimonial.id);
-                      setShowDeleteModal(true);
-                    }}
-                  >
-                    <Trash2 className="w-5 h-5 text-white" />
-                  </button>
-                </div>
-              </div>
-            ))):( <div className="w-full h-96  flex justify-center items-center">
-              <p>No Testimonials available</p>
-            </div>)}
-          </div> */}
-            <div className="mx-auto space-y-4">
-      {testimonials.length > 0 ? (
-        <>
-          {testimonials.map((testimonial) => (
-            <div key={testimonial.id} className="bg-base-200 p-4 rounded-lg flex justify-between items-center">
-              <div className="flex-1 select-none">
-                <div className="text-xl font-bold text-accent">{testimonial.author}</div>
-                <p className="text-base-content">
-                  {testimonial.text} - <span className="text-sm opacity-70 ml-2">{testimonial.position}</span>
-                </p>
-                
-                <div className="flex items-center space-x-1 mt-2">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-warning text-warning" />
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  className="btn btn-sm btn-square btn-ghost"
-                  onClick={() => handleEdit(testimonial)}
-                >
-                  <Pencil className="w-5 h-5 text-success" />
-                </button>
-                <button
-                  className="btn btn-sm btn-square btn-error"
-                  onClick={() => {
-                    setTestimonialToDelete(testimonial.id);
-                    setShowDeleteModal(true);
-                  }}
-                >
-                  <Trash2 className="w-5 h-5 text-white" />
-                </button>
-              </div>
-            </div>
-          ))}
+                ))}
 
-          {/* Pagination controls */}
-          <div className="flex justify-center items-center space-x-2 mt-6">
-            <button 
-              onClick={goToPrevPage} 
-              disabled={currentPage === 1}
-              className={`btn btn-sm ${currentPage === 1 ? 'btn-disabled' : 'btn-primary'}`}
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            
-            <div className="flex space-x-1">
-              {[...Array(totalPages)].map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToPage(index + 1)}
-                  className={`btn btn-sm ${currentPage === index + 1 ? 'btn-primary' : 'btn-ghost'}`}
-                >
-                  {index + 1}
-                </button>
-              ))}
-            </div>
-            
-            <button 
-              onClick={goToNextPage} 
-              disabled={currentPage === totalPages}
-              className={`btn btn-sm ${currentPage === totalPages ? 'btn-disabled' : 'btn-primary'}`}
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+                {/* Pagination controls */}
+                {testimonialData.length > itemsPerPage && (
+                  <div className="flex justify-center items-center space-x-2 mt-6">
+                    <button 
+                      onClick={goToPrevPage} 
+                      disabled={currentPage === 1}
+                      className={`btn btn-sm ${currentPage === 1 ? 'btn-disabled' : 'btn-primary'}`}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    
+                    <div className="flex space-x-1">
+                      {[...Array(totalPages)].map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => goToPage(index + 1)}
+                          className={`btn btn-sm ${currentPage === index + 1 ? 'btn-primary' : 'btn-ghost'}`}
+                        >
+                          {index + 1}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <button 
+                      onClick={goToNextPage} 
+                      disabled={currentPage === totalPages}
+                      className={`btn btn-sm ${currentPage === totalPages ? 'btn-disabled' : 'btn-primary'}`}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="w-full h-96 flex justify-center items-center">
+                <p>No Testimonials available</p>
+              </div>
+            )}
           </div>
-        </>
-      ) : (
-        <div className="w-full h-96 flex justify-center items-center">
-          <p>No Testimonials available</p>
-        </div>
-      )}
-    </div>
         </div>
 
         <div className="drawer-side">
@@ -247,14 +214,23 @@ const TestimonialLayout = () => {
               <button
                 className="btn btn-sm btn-ghost"
                 onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
               >
                 Cancel
               </button>
               <button
                 className="btn btn-sm btn-error"
                 onClick={() => handleDelete(testimonialToDelete)}
+                disabled={isDeleting}
               >
-                Delete
+                {isDeleting ? (
+                  <>
+                    <Loader className="w-4 h-4 animate-spin mr-2" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete'
+                )}
               </button>
             </div>
           </div>
