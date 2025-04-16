@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../config/axios";
 import playNotificationSound from "../../utils/playNotification";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   // Form fields
@@ -10,10 +12,15 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   const [date, setDate] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
+  const [wordCount, setWordCount] = useState(0);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [imageWasRemoved, setImageWasRemoved] = useState(false);
+  const [theme, setTheme] = useState("light");
+  
+  const MAX_WORD_COUNT = 1000;
+  const MIN_WORD_COUNT = 10;
   
   // Validation errors
   const [errors, setErrors] = useState({
@@ -26,6 +33,86 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   });
 
   const inputRef = useRef(null);
+  const quillRef = useRef(null);
+  const isResetting = useRef(false);
+
+  // Quill editor modules and formats configuration
+  const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'align': [] }],
+      ['blockquote', 'code-block'],
+      ['link'],
+      ['clean'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'font': [] }],
+    ],
+    clipboard: {
+      // Toggle to add extra line breaks when pasting HTML:
+      matchVisual: false,
+    },
+  };
+
+  const quillFormats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet', 'indent',
+    'link',
+    'align', 'color', 'background', 'font',
+    'blockquote', 'code-block',
+  ];
+
+  // Function to strip HTML tags and count words
+  const getWordCountFromHTML = (html) => {
+    if (!html) return 0;
+    
+    // Remove HTML tags and get plain text
+    const plainText = html.replace(/<[^>]*>/g, '').trim();
+    
+    // Count words by splitting on whitespace and filtering empty strings
+    const words = plainText.split(/\s+/).filter(word => word.length > 0);
+    
+    return words.length;
+  };
+
+  // Calculate word count from content
+  useEffect(() => {
+    if (content) {
+      const count = getWordCountFromHTML(content);
+      setWordCount(count);
+      
+      // Update content validation error
+      let contentError = "";
+      if (!content.trim()) {
+        contentError = "Content is required.";
+      } else if (count < MIN_WORD_COUNT) {
+        contentError = `Content must be at least ${MIN_WORD_COUNT} words (currently ${count}).`;
+      } else if (count > MAX_WORD_COUNT) {
+        contentError = `Content cannot exceed ${MAX_WORD_COUNT} words (currently ${count}).`;
+      }
+      
+      setErrors(prev => ({
+        ...prev,
+        content: contentError
+      }));
+    } else {
+      setWordCount(0);
+      setErrors(prev => ({
+        ...prev,
+        content: "Content is required."
+      }));
+    }
+  }, [content]);
+
+  // Load theme from local storage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setTheme(localStorage.getItem("theme") || "light");
+    }
+  }, []);
 
   // Validation functions
   const validateTitle = (value) => {
@@ -80,12 +167,21 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   };
 
   const validateContent = (value) => {
-    if (!value.trim()) {
+    if (!value || !value.trim()) {
       return "Content is required";
     }
-    if (value.trim().length < 50) {
-      return "Content must be at least 50 characters long";
+    
+    // Count words using our HTML stripping method
+    const count = getWordCountFromHTML(value);
+    
+    if (count < MIN_WORD_COUNT) {
+      return `Content must be at least ${MIN_WORD_COUNT} words (currently ${count}).`;
     }
+    
+    if (count > MAX_WORD_COUNT) {
+      return `Content cannot exceed ${MAX_WORD_COUNT} words (currently ${count}).`;
+    }
+    
     return "";
   };
 
@@ -163,9 +259,6 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
         case 'excerpt':
           setExcerpt(value);
           break;
-        case 'content':
-          setContent(value);
-          break;
       }
       errorMessage = validateField(name, value);
     }
@@ -177,7 +270,17 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     }));
   };
   
+  // Handle ReactQuill content change
+  const handleContentChange = (value) => {
+    setContent(value);
+    // validation is handled in the useEffect
+  };
+  
   const resetForm = () => {
+    if (isResetting.current) return; // Prevent multiple resets
+    
+    isResetting.current = true;
+    
     setTitle("");
     setAuthor("");
     setDate("");
@@ -186,7 +289,20 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     setImageFile(null);
     setImagePreview(null);
     setImageWasRemoved(false);
-    setIsDrawerOpen(false);
+    setWordCount(0);
+    setErrors({
+      title: "",
+      author: "",
+      date: "",
+      excerpt: "",
+      content: "",
+      image: ""
+    });
+    
+    // Reset the flag after a short delay to prevent double reset
+    setTimeout(() => {
+      isResetting.current = false;
+    }, 100);
   }
 
   // Form submission validation
@@ -198,17 +314,20 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     const contentError = validateContent(content);
     const imageError = validateImage(imageFile);
 
-    setErrors({
+    const newErrors = {
       title: titleError,
       author: authorError,
       date: dateError,
       excerpt: excerptError,
       content: contentError,
       image: imageError
-    });
+    };
+    
+    setErrors(newErrors);
 
-    // Return true if no errors
-    return !(titleError || authorError || dateError || excerptError || contentError || imageError);
+    // Check if there are any errors
+    const hasErrors = Object.values(newErrors).some(error => error);
+    return !hasErrors;
   };
 
   const handleSubmit = async (event) => {
@@ -216,7 +335,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
 
     // Validate entire form before submission
     if (!validateForm()) {
-      toast.error("Please fill in all required fields before submitting.");
+      toast.error("Please fix all errors before submitting.");
       return;
     }
 
@@ -266,8 +385,8 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
         onBlogCreated();
       }
 
-      // Reset form
-      resetForm();
+      // Close drawer first, then reset the form to avoid double reset
+      setIsDrawerOpen(false);
       
     } catch (error) {
       console.error("Error handling blog post:", error);
@@ -298,8 +417,11 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     }
   };
 
-  // Existing useEffect for populating form in edit mode
+  // Populate form in edit mode
   useEffect(() => {
+    // Skip if we're in the process of resetting
+    if (isResetting.current) return;
+    
     if (mode === "edit" && initialData) {
       setTitle(initialData.title || "");
       setAuthor(initialData.author || "");
@@ -308,6 +430,13 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       setContent(initialData.content || "");
       setImagePreview(initialData.image || null);
       setImageWasRemoved(false);
+      
+      // Make sure to update word count for initial content
+      if (initialData.content) {
+        const count = getWordCountFromHTML(initialData.content);
+        setWordCount(count);
+      }
+      
     } else if (mode === "add") {
       // Reset all fields
       setTitle("");
@@ -318,6 +447,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       setImageFile(null);
       setImagePreview(null);
       setImageWasRemoved(false);
+      setWordCount(0);
       // Completely clear all error messages
       setErrors({
         title: "",
@@ -331,18 +461,28 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   }, [mode, initialData]);
 
   const onCancel = () => {
+    // Only close the drawer, don't call resetForm() here
     setIsDrawerOpen(false);
-    setErrors({});
-    resetForm();
   }
+
+  // Calculate word count status for styling
+  const getWordCountStatus = () => {
+    if (wordCount > MAX_WORD_COUNT) {
+      return "text-error";
+    } else if (wordCount < MIN_WORD_COUNT) {
+      return "text-error";
+    } else if (wordCount > MAX_WORD_COUNT * 0.9) {
+      return "text-warning";
+    }
+    return "text-success";
+  };
 
   return (
     <form onSubmit={handleSubmit}>
       {/* Title Input */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Title <span className="text-error"> *</span>
-          </span>
+          <span className="label-text">Title <span className="text-error"> *</span></span>
         </label>
         <input
           type="text"
@@ -358,8 +498,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       {/* Author Input */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Author <span className="text-error"> *</span>
-          </span>
+          <span className="label-text">Author <span className="text-error"> *</span></span>
         </label>
         <input
           type="text"
@@ -451,25 +590,141 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
         {errors.image && <p className="text-error text-sm mt-1">{errors.image}</p>}
       </div>
 
-      {/* Content Input */}
+      {/* Content Input with ReactQuill */}
       <div className="form-control mb-4">
         <label className="label">
           <span className="label-text">Content <span className="text-error"> *</span></span>
+          <span className={`label-text-alt ${getWordCountStatus()}`}>
+            {wordCount}/{MAX_WORD_COUNT} words
+          </span>
         </label>
-        <textarea
-          name="content"
-          className={`textarea textarea-bordered ${errors.content ? 'textarea-error' : ''}`}
-          placeholder="Write your post content..."
-          value={content}
-          onChange={handleInputChange}
-          rows={6}
-        ></textarea>
+        <div className={`quill-container ${theme === "dark" ? "dark-mode" : "light-mode"}`}>
+          <ReactQuill
+            ref={quillRef}
+            theme="snow"
+            value={content}
+            onChange={handleContentChange}
+            modules={quillModules}
+            formats={quillFormats}
+            className={`custom-quill ${errors.content ? 'quill-error' : ''}`}
+            placeholder="Write your post content..."
+          />
+          <style jsx global>{`
+            .quill-container {
+              border-radius: 0.5rem;
+              overflow: hidden;
+            }
+            
+            .quill-container .ql-container {
+              min-height: 200px;
+              max-height: 500px;
+              overflow-y: auto;
+              font-size: 16px;
+              font-family: inherit;
+            }
+            
+            .quill-container .ql-editor {
+              min-height: 200px;
+              padding: 1rem;
+            }
+            
+            .quill-container .ql-toolbar {
+              border-top-left-radius: 0.5rem;
+              border-top-right-radius: 0.5rem;
+              flex-wrap: wrap;
+            }
+            
+            /* Error state styling */
+            .quill-error .ql-toolbar {
+              border-color: #f56565;
+            }
+            
+            .quill-error .ql-container {
+              border-color: #f56565;
+            }
+            
+            /* Light Mode Styles */
+        .light-mode .ql-editor::before {
+          color: gray !important; /* Light mode placeholder color */
+          opacity: 0.6;
+        }
+
+        /* Dark Mode Styles */
+        .dark-mode .ql-editor::before {
+          color: white !important; /* Dark mode placeholder color */
+          opacity: 0.6;
+        }
+            
+            /* Toolbar button styles */
+            .dark-mode .ql-toolbar button {
+              color: #e2e8f0;
+            }
+            
+            .dark-mode .ql-toolbar button svg path {
+              stroke: #e2e8f0;
+            }
+            
+            .dark-mode .ql-toolbar .ql-stroke {
+              stroke: #e2e8f0;
+            }
+            
+            .dark-mode .ql-toolbar .ql-fill {
+              fill: #e2e8f0;
+            }
+            
+            .dark-mode .ql-toolbar .ql-picker {
+              color: #e2e8f0;
+            }
+            
+            /* Improve button styling in toolbar */
+            .ql-toolbar button {
+              margin: 2px;
+            }
+            
+            /* Make sure images are responsive within the editor */
+            .ql-editor img {
+              max-width: 100%;
+              height: auto;
+            }
+            
+            /* Better table styling */
+            .ql-editor table {
+              border-collapse: collapse;
+              width: 100%;
+              margin-bottom: 1rem;
+            }
+            
+            .ql-editor td {
+              border: 1px solid #ced4da;
+              padding: 8px;
+            }
+            
+            /* Code block styling */
+            .ql-editor pre {
+              background-color: #f1f1f1;
+              color: #333;
+              padding: 0.75rem;
+              border-radius: 4px;
+              font-family: monospace;
+              white-space: pre-wrap;
+            }
+            
+            .dark-mode .ql-editor pre {
+              background-color: #2d3748;
+              color: #e2e8f0;
+            }
+          `}</style>
+        </div>
         {errors.content && <p className="text-error text-sm mt-1">{errors.content}</p>}
       </div>
 
       {/* Publish Button */}
       <div className="form-control mt-6 flex flex-col gap-2">
-        <button type="submit" className="btn btn-primary" disabled={loading}>
+        <button 
+          type="submit" 
+          className="btn btn-primary" 
+          disabled={loading || wordCount < MIN_WORD_COUNT || wordCount > MAX_WORD_COUNT}
+        >
           {loading && <span className="spinner-border spinner-border-sm me-2"></span>}
           {loading ? (mode === "add" ? "Creating..." : "Updating...") : mode === "add" ? "Create" : "Update"}
         </button>

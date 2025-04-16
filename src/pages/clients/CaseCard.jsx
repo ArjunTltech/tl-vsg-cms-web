@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import DeleteConfirmModal from "../../components/ui/modal/DeleteConfirmModal";
 
 const CaseCard = ({ casestudy, onDelete, onEdit }) => {
-
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,7 +39,7 @@ const CaseCard = ({ casestudy, onDelete, onEdit }) => {
             {casestudy?.title}
           </h2>
           <p className="text-neutral-content text-sm overflow-hidden text-ellipsis line-clamp-2 mb-10">
-            {casestudy?.description}
+            {casestudy?.subTitle}
           </p>
         </div>
 
