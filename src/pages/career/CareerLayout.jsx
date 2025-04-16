@@ -62,11 +62,17 @@ const CareerLayout = () => {
     }
   };
 
-  // Function to truncate text and add ellipsis
-  const truncateText = (text, maxLength = 50) => {
-    if (!text) return '';
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
+  // Function to truncate text and strip HTML tags for the table view
+  const truncateText = (html, maxLength = 50) => {
+    if (!html) return '';
+    
+    // Create a temporary element to parse HTML and get plain text
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    
+    if (plainText.length <= maxLength) return plainText;
+    return plainText.substring(0, maxLength) + '...';
   };
 
   return (
@@ -178,7 +184,7 @@ const CareerLayout = () => {
       />
     )}
 
-    {/* Enhanced Description View Modal with Scrollable Description Fields */}
+    {/* Enhanced Description View Modal with HTML Rendering */}
     {viewDescriptionCareer && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-base-100 p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] flex flex-col">
@@ -202,8 +208,12 @@ const CareerLayout = () => {
             
             <div>
               <p className="text-sm mb-1">Description</p>
-              <div className="max-h-40 overflow-y-auto border border-base-300 rounded p-2 bg-base-200">
-                <p className="whitespace-pre-line">{viewDescriptionCareer.shortdescription}</p>
+              <div className="max-h-60 overflow-y-auto border border-base-300 rounded p-2 bg-base-200">
+                {/* Using dangerouslySetInnerHTML to render the HTML content from Quill editor */}
+                <div 
+                  className="ql-content"
+                  dangerouslySetInnerHTML={{ __html: viewDescriptionCareer.shortdescription }}
+                ></div>
               </div>
             </div>
 
@@ -211,7 +221,10 @@ const CareerLayout = () => {
               <div>
                 <p className="text-sm mb-1">Requirements</p>
                 <div className="max-h-40 overflow-y-auto border border-base-300 rounded p-2 bg-base-200">
-                  <p className="whitespace-pre-line">{viewDescriptionCareer.requirements}</p>
+                  <div
+                    className="ql-content"
+                    dangerouslySetInnerHTML={{ __html: viewDescriptionCareer.requirements }}
+                  ></div>
                 </div>
               </div>
             )}
@@ -220,7 +233,10 @@ const CareerLayout = () => {
               <div>
                 <p className="text-sm mb-1">Benefits</p>
                 <div className="max-h-40 overflow-y-auto border border-base-300 rounded p-2 bg-base-200">
-                  <p className="whitespace-pre-line">{viewDescriptionCareer.benefits}</p>
+                  <div
+                    className="ql-content"
+                    dangerouslySetInnerHTML={{ __html: viewDescriptionCareer.benefits }}
+                  ></div>
                 </div>
               </div>
             )}
