@@ -19,7 +19,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   const [imageWasRemoved, setImageWasRemoved] = useState(false);
   const [theme, setTheme] = useState("light");
   
-  const MAX_WORD_COUNT = 1000;
+  const MAX_WORD_COUNT = 5000;
   const MIN_WORD_COUNT = 10;
   
   // Validation errors
