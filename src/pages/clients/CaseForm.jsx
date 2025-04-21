@@ -26,7 +26,7 @@ function CaseForm({ onClientCreated, refreshClientList, initialData, mode, setIs
   
   // Min and max word count constraints for description
   const MIN_WORD_COUNT = 10;
-  const MAX_WORD_COUNT = 1000;
+  const MAX_WORD_COUNT = 5000;
   
   const [errors, setErrors] = useState({});
   
