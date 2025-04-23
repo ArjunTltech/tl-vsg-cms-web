@@ -6,34 +6,47 @@ import axiosInstance from '../../config/axios';
 import playNotificationSound from '../../utils/playNotification';
 
 function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, careers }) {
+  // Initialize state with default empty values or initialData if available
   const [career, setCareer] = useState({
-    position: '',
-    positionCount: '',
-    location: '',
-    shortdescription: '',
-    jobType: ''
+    position: initialData?.position || '',
+    positionCount: initialData?.positionCount?.toString() || '',
+    location: initialData?.location || '',
+    shortdescription: initialData?.shortdescription || '',
+    jobType: initialData?.jobType || ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [charCount, setCharCount] = useState(0);
 
+  // Set initial character count on component mount
+  useEffect(() => {
+    if (career.shortdescription) {
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = career.shortdescription;
+      setCharCount(tempDiv.textContent.length);
+    }
+  }, []);
+
+  // This useEffect will run only when mode or initialData reference changes
   useEffect(() => {
     if (mode === "edit" && initialData) {
+      // Update form data without setTimeout
       setCareer({
         position: initialData.position || '',
-        positionCount: initialData.positionCount || '',
+        positionCount: initialData.positionCount?.toString() || '',
         location: initialData.location || '',
         shortdescription: initialData.shortdescription || '',
         jobType: initialData.jobType || ''
       });
+      
       // Update character count for rich text
       if (initialData.shortdescription) {
-        // Strip HTML to get plain text character count
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = initialData.shortdescription;
         setCharCount(tempDiv.textContent.length);
       }
     } else if (mode === "add") {
+      // Reset form for add mode
       setCareer({
         position: '',
         positionCount: '',
@@ -42,10 +55,11 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
         jobType: ''
       });
       setCharCount(0);
-      setErrors({});  // Reset errors when switching to "add" mode
+      setErrors({});
     }
-    setIsSubmitting(false); // Reset submitting state
-  }, [mode, initialData, careers]);
+    
+    setIsSubmitting(false);
+  }, [mode, initialData]);
 
   const validateField = (name, value) => {
     switch (name) {
@@ -130,20 +144,14 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
       if (mode === "add") {
         response = await axiosInstance.post("/career/create-career", career);
         playNotificationSound();
-        setCareer({ position: '', positionCount: '', location: '', shortdescription: '', jobType: '' });
-
         toast.success("Career created successfully!");
       } else if (mode === "edit" && initialData) {
         response = await axiosInstance.put(`/career/update-career/${initialData.id}`, career);
         playNotificationSound();
-        setCareer({ position: '', positionCount: '', location: '', shortdescription: '', jobType: '' });
-
         toast.success("Career updated successfully!");
       }
 
       if (onCareerCreated) onCareerCreated();
-      setCareer({ position: '', positionCount: '', location: '', shortdescription: '', jobType: '' });
-      setCharCount(0);
       setIsDrawerOpen(false);
     } catch (error) {
       console.error("Error submitting career form:", error);
@@ -155,15 +163,12 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
   };
 
   const handleCancel = () => {
-    setCareer({ position: '', positionCount: '', location: '', shortdescription: '', jobType: '' }); // Reset career state
-    setCharCount(0);
-    setErrors({}); // Clear errors
-    setIsDrawerOpen(false); // Close the drawer or modal
+    setIsDrawerOpen(false);
   };
 
   const quillModules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],  // h1, h2, h3, normal
+      [{ 'header': [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       ['link'],

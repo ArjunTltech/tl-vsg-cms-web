@@ -10,6 +10,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [date, setDate] = useState("");
+  const [formattedDate, setFormattedDate] = useState(""); // For displaying month name
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [wordCount, setWordCount] = useState(0);
@@ -64,6 +65,32 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     'align', 'color', 'background', 'font',
     'blockquote', 'code-block',
   ];
+
+  // Format date for display with month name
+  const formatDateWithMonth = (dateString) => {
+    if (!dateString) return "";
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+  };
+
+  // Convert date to YYYY-MM-DD format for input field
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return "";
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    
+    // Format as YYYY-MM-DD for the date input
+    return date.toISOString().split('T')[0];
+  };
 
   // Function to strip HTML tags and count words
   const getWordCountFromHTML = (html) => {
@@ -244,17 +271,18 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
         setImageWasRemoved(false);
       }
       errorMessage = validateField('image', file);
+    } else if (name === 'date') {
+      setDate(value);
+      setFormattedDate(formatDateWithMonth(value));
+      errorMessage = validateField(name, value);
     } else {
-      // For text inputs
+      // For other text inputs
       switch (name) {
         case 'title':
           setTitle(value);
           break;
         case 'author':
           setAuthor(value);
-          break;
-        case 'date':
-          setDate(value);
           break;
         case 'excerpt':
           setExcerpt(value);
@@ -284,6 +312,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     setTitle("");
     setAuthor("");
     setDate("");
+    setFormattedDate("");
     setExcerpt("");
     setContent("");
     setImageFile(null);
@@ -425,7 +454,14 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     if (mode === "edit" && initialData) {
       setTitle(initialData.title || "");
       setAuthor(initialData.author || "");
-      setDate(initialData.date || "");
+      
+      // Format the date for the input field (YYYY-MM-DD)
+      const formattedInputDate = formatDateForInput(initialData.date);
+      setDate(formattedInputDate);
+      
+      // Also set the formatted date with month name for display
+      setFormattedDate(formatDateWithMonth(initialData.date));
+      
       setExcerpt(initialData.excerpt || "");
       setContent(initialData.content || "");
       setImagePreview(initialData.image || null);
@@ -442,6 +478,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       setTitle("");
       setAuthor("");
       setDate("");
+      setFormattedDate("");
       setExcerpt("");
       setContent("");
       setImageFile(null);
@@ -463,6 +500,14 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   const onCancel = () => {
     // Only close the drawer, don't call resetForm() here
     setIsDrawerOpen(false);
+    setErrors({
+      title: "",
+      author: "",
+      date: "",
+      excerpt: "",
+      content: "",
+      image: ""
+    });
   }
 
   // Calculate word count status for styling
@@ -515,6 +560,9 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       <div className="form-control mb-4">
         <label className="label">
           <span className="label-text">Date <span className="text-error"> *</span></span>
+          {formattedDate && (
+            <span className="label-text-alt text-info">{formattedDate}</span>
+          )}
         </label>
         <input
           type="date"

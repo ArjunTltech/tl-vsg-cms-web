@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 import CareerForm from './CareerForm';
 import axiosInstance from '../../config/axios';
 import DeleteConfirmModal from '../../components/ui/modal/DeleteConfirmModal';
-// import CareerForm from '../../career/CareerForm';
 
 const CareerLayout = () => {
   const [careers, setCareers] = useState([]);
@@ -33,15 +32,31 @@ const CareerLayout = () => {
   }, [refreshCareers]);
 
   const handleAddNewCareer = () => {
+    // Reset edit career first, then set mode, then open drawer
     setEditCareer(null);
     setMode("add");
-    setIsDrawerOpen(true);
+    setTimeout(() => {
+      setIsDrawerOpen(true);
+    }, 0);
   };
 
   const handleEditCareer = (career) => {
-    setEditCareer(career);
-    setMode("edit");
-    setIsDrawerOpen(true);
+    // Close drawer first if it's open
+    if (isDrawerOpen) {
+      setIsDrawerOpen(false);
+      
+      // Use setTimeout to ensure drawer closes before reopening with new data
+      setTimeout(() => {
+        setEditCareer({ ...career }); // Make a copy to ensure React detects the change
+        setMode("edit");
+        setIsDrawerOpen(true);
+      }, 100);
+    } else {
+      // If drawer is closed, we can set data and open immediately
+      setEditCareer({ ...career });
+      setMode("edit");
+      setIsDrawerOpen(true);
+    }
   };
 
   const handleDeleteCareer = async (id) => {
@@ -161,13 +176,15 @@ const CareerLayout = () => {
         <label htmlFor="career-drawer" className="drawer-overlay"></label>
         <div className="p-4 md:w-1/3 w-full sm:w-2/3 max-h-screen overflow-auto bg-base-100 h-[80vh] text-base-content absolute bottom-4 right-4 rounded-lg shadow-lg">
           <h2 className="text-lg font-bold mb-4">{mode === "edit" ? 'Edit Career' : 'Add New Career'}</h2>
-          <CareerForm
-            onCareerCreated={refreshCareers}
-            initialData={editCareer}
-            mode={mode}
-            careers={careers}
-            setIsDrawerOpen={setIsDrawerOpen}
-          />
+          {isDrawerOpen && (
+            <CareerForm
+              onCareerCreated={refreshCareers}
+              initialData={editCareer}
+              mode={mode}
+              careers={careers}
+              setIsDrawerOpen={setIsDrawerOpen}
+            />
+          )}
         </div>
       </div>
     </div>
