@@ -10,7 +10,8 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [date, setDate] = useState("");
-  const [formattedDate, setFormattedDate] = useState(""); // For displaying month name
+  // We'll keep this state but not display it in the UI
+  const [formattedDate, setFormattedDate] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [wordCount, setWordCount] = useState(0);
@@ -19,6 +20,11 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   const [loading, setLoading] = useState(false);
   const [imageWasRemoved, setImageWasRemoved] = useState(false);
   const [theme, setTheme] = useState("light");
+  
+  // New state to store individual date components for custom display
+  const [day, setDay] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
   
   const MAX_WORD_COUNT = 5000;
   const MIN_WORD_COUNT = 10;
@@ -36,6 +42,51 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
   const inputRef = useRef(null);
   const quillRef = useRef(null);
   const isResetting = useRef(false);
+
+  // Month options for grammatical display
+  const months = [
+    { value: "01", label: "January" },
+    { value: "02", label: "February" },
+    { value: "03", label: "March" },
+    { value: "04", label: "April" },
+    { value: "05", label: "May" },
+    { value: "06", label: "June" },
+    { value: "07", label: "July" },
+    { value: "08", label: "August" },
+    { value: "09", label: "September" },
+    { value: "10", label: "October" },
+    { value: "11", label: "November" },
+    { value: "12", label: "December" }
+  ];
+
+  // Days array for day selection
+  const generateDays = () => {
+    const days = [];
+    for (let i = 1; i <= 31; i++) {
+      days.push({
+        value: i < 10 ? `0${i}` : `${i}`,
+        label: `${i}`
+      });
+    }
+    return days;
+  };
+  
+  const days = generateDays();
+
+  // Years array for year selection
+  const generateYears = () => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let i = currentYear; i >= currentYear - 100; i--) {
+      years.push({
+        value: `${i}`,
+        label: `${i}`
+      });
+    }
+    return years;
+  };
+  
+  const years = generateYears();
 
   // Quill editor modules and formats configuration
   const quillModules = {
@@ -92,6 +143,24 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     return date.toISOString().split('T')[0];
   };
 
+  // Parse date string into individual components
+  const parseDateToComponents = (dateString) => {
+    if (!dateString) return { day: "", month: "", year: "" };
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return { day: "", month: "", year: "" };
+    
+    const monthValue = (date.getMonth() + 1).toString().padStart(2, '0');
+    const dayValue = date.getDate().toString().padStart(2, '0');
+    const yearValue = date.getFullYear().toString();
+    
+    return {
+      day: dayValue,
+      month: monthValue,
+      year: yearValue
+    };
+  };
+
   // Function to strip HTML tags and count words
   const getWordCountFromHTML = (html) => {
     if (!html) return 0;
@@ -140,6 +209,21 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       setTheme(localStorage.getItem("theme") || "light");
     }
   }, []);
+
+  // Update the date value when day, month, or year changes
+  useEffect(() => {
+    if (day && month && year) {
+      const newDate = `${year}-${month}-${day}`;
+      setDate(newDate);
+      
+      // Validate the new date
+      const dateError = validateDate(newDate);
+      setErrors(prev => ({
+        ...prev,
+        date: dateError
+      }));
+    }
+  }, [day, month, year]);
 
   // Validation functions
   const validateTitle = (value) => {
@@ -258,6 +342,19 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     }
   };
 
+  // Handle date component changes
+  const handleDateComponentChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (name === 'day') {
+      setDay(value);
+    } else if (name === 'month') {
+      setMonth(value);
+    } else if (name === 'year') {
+      setYear(value);
+    }
+  };
+
   // Handle input changes with validation
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
@@ -271,10 +368,6 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
         setImageWasRemoved(false);
       }
       errorMessage = validateField('image', file);
-    } else if (name === 'date') {
-      setDate(value);
-      setFormattedDate(formatDateWithMonth(value));
-      errorMessage = validateField(name, value);
     } else {
       // For other text inputs
       switch (name) {
@@ -312,6 +405,9 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     setTitle("");
     setAuthor("");
     setDate("");
+    setDay("");
+    setMonth("");
+    setYear("");
     setFormattedDate("");
     setExcerpt("");
     setContent("");
@@ -459,8 +555,11 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       const formattedInputDate = formatDateForInput(initialData.date);
       setDate(formattedInputDate);
       
-      // Also set the formatted date with month name for display
-      setFormattedDate(formatDateWithMonth(initialData.date));
+      // Parse the date to update individual components
+      const { day, month, year } = parseDateToComponents(initialData.date);
+      setDay(day);
+      setMonth(month);
+      setYear(year);
       
       setExcerpt(initialData.excerpt || "");
       setContent(initialData.content || "");
@@ -478,6 +577,9 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       setTitle("");
       setAuthor("");
       setDate("");
+      setDay("");
+      setMonth("");
+      setYear("");
       setFormattedDate("");
       setExcerpt("");
       setContent("");
@@ -556,21 +658,57 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
         {errors.author && <p className="text-error text-sm mt-1">{errors.author}</p>}
       </div>
 
-      {/* Date Input */}
+      {/* Custom Date Input with Grammatical Month */}
       <div className="form-control mb-4">
         <label className="label">
           <span className="label-text">Date <span className="text-error"> *</span></span>
-          {formattedDate && (
-            <span className="label-text-alt text-info">{formattedDate}</span>
-          )}
         </label>
-        <input
-          type="date"
-          name="date"
-          className={`input input-bordered ${errors.date ? 'input-error' : 'border-accent'}`}
-          value={date}
-          onChange={handleInputChange}
-        />
+        <div className="grid grid-cols-3 gap-2">
+          {/* Day dropdown */}
+          <select
+            name="day"
+            className={`select select-bordered ${errors.date ? 'select-error' : 'border-accent'}`}
+            value={day}
+            onChange={handleDateComponentChange}
+          >
+            <option value="" disabled>Day</option>
+            {days.map(dayOption => (
+              <option key={dayOption.value} value={dayOption.value}>
+                {dayOption.label}
+              </option>
+            ))}
+          </select>
+          
+          {/* Month dropdown with grammatical names */}
+          <select
+            name="month"
+            className={`select select-bordered ${errors.date ? 'select-error' : 'border-accent'}`}
+            value={month}
+            onChange={handleDateComponentChange}
+          >
+            <option value="" disabled>Month</option>
+            {months.map(monthOption => (
+              <option key={monthOption.value} value={monthOption.value}>
+                {monthOption.label}
+              </option>
+            ))}
+          </select>
+          
+          {/* Year dropdown */}
+          <select
+            name="year"
+            className={`select select-bordered ${errors.date ? 'select-error' : 'border-accent'}`}
+            value={year}
+            onChange={handleDateComponentChange}
+          >
+            <option value="" disabled>Year</option>
+            {years.map(yearOption => (
+              <option key={yearOption.value} value={yearOption.value}>
+                {yearOption.label}
+              </option>
+            ))}
+          </select>
+        </div>
         {errors.date && <p className="text-error text-sm mt-1">{errors.date}</p>}
       </div>
 
@@ -692,16 +830,16 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
             }
             
             /* Light Mode Styles */
-        .light-mode .ql-editor::before {
-          color: gray !important; /* Light mode placeholder color */
-          opacity: 0.6;
-        }
+            .light-mode .ql-editor::before {
+              color: gray !important; /* Light mode placeholder color */
+              opacity: 0.6;
+            }
 
-        /* Dark Mode Styles */
-        .dark-mode .ql-editor::before {
-          color: white !important; /* Dark mode placeholder color */
-          opacity: 0.6;
-        }
+            /* Dark Mode Styles */
+            .dark-mode .ql-editor::before {
+              color: white !important; /* Dark mode placeholder color */
+              opacity: 0.6;
+            }
             
             /* Toolbar button styles */
             .dark-mode .ql-toolbar button {
