@@ -94,7 +94,7 @@ function BlogsLayout() {
               className="btn btn-primary text-white gap-2"
               onClick={handleAddNewPost}
             >
-              + New post
+              + New Blog
             </button>
           </div>
 
@@ -179,7 +179,7 @@ function BlogsLayout() {
           <label htmlFor="new-post-drawer" className="drawer-overlay"></label>
           <div className="p-4 md:w-[40%] w-full sm:w-1/2 overflow-y-scroll bg-base-100 h-[85vh] text-base-content absolute bottom-4 right-4 rounded-lg shadow-lg">
             <h2 className="text-lg font-bold mb-4">
-              {editBlog ? "Edit Post" : "Add New Post"}
+              {editBlog ? "Edit Post" : "Add New Blog Post"}
             </h2>
             <BlogPostForm
               onBlogCreated={refreshBlogList}
