@@ -742,7 +742,10 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
       {/* Image Upload */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">Image <span className="text-error"> *</span></span>
+          <span className="label-text">Normal Image <span className="text-error"> *</span>
+          <span> ( JPG/PNG,-1024×768 px, less than 2 MB, no high-res files.)</span>
+          </span>
+      
         </label>
         <div
           className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-center cursor-pointer ${errors.image ? 'border-error' : 'border-neutral'}`}

@@ -631,6 +631,7 @@ const TeamManagement = () => {
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Profile Image <span className="text-error">*</span>
+                  <span> ( JPG/PNG,-1024×768 px, less than 2 MB, no high-res files.)</span>
                 </label>
                 <input
 
