@@ -558,8 +558,9 @@ const OrganizationDetails = () => {
             {/* Image Upload Section */}
             <div className="form-control col-span-1 md:col-span-2 flex justify-center mb-4">
               <label className="label">
-                <span className="label-text">Logo</span>
-              </label>
+                <span className="label-text">Logo <span> ( JPG/PNG,less than 2 MB, no high-res files.)</span></span>
+                
+                </label>
               <div
                 className="border-2 w-full md:w-96 border-dashed rounded-lg p-4 flex flex-col items-center justify-center text-center cursor-pointer bg-base-100"
                 onClick={() => inputRef.current?.click()}

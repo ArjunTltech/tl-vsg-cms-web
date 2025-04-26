@@ -353,8 +353,8 @@ function ServiceForm({ onServiceCreated, initialData, mode, setIsDrawerOpen }) {
       {/* Image Upload */}
       <div className="form-control mb-4">
         <label className="label">
-          <span className="label-text">
-            Image <span className="text-error">*</span>
+          <span className="label-text">Normal Image <span className="text-error"> *</span>
+          <span> ( JPG/PNG,-1024×768 px, less than 2 MB, no high-res files.)</span>
           </span>
         </label>
         <div
