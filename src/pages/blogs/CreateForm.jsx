@@ -724,7 +724,7 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
 
     {/* Tooltip */}
     <span className="absolute top-full left-1/2 -translate-x-1/2 sm:left-full sm:top-1/2 sm:-translate-y-1/2 sm:translate-x-0 mt-2 sm:mt-0 p-2 bg-gray-700 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-[90vw] sm:w-max max-w-xs sm:max-w-sm md:max-w-sm lg:max-w-sm whitespace-normal break-words z-50">
-    A short summary or introduction of the blog post, typically one or two sentences long. It helps users quickly understand what the post is about when browsing through multiple blog entries.
+    A short summary or snippet that gives a quick overview of the full content.
     </span>
   </span>
 </label>
