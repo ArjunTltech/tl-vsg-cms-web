@@ -99,8 +99,8 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
           return "Short description must be at least 10 characters long";
         }
         
-        if (textLength > 2000) {
-          return "Short description exceeds maximum length of 2000 characters";
+        if (textLength > 5000) {
+          return "Short description exceeds maximum length of 5000 characters";
         }
         
         return null;
@@ -269,15 +269,15 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
           Short Description
           <span className="text-error">*</span>
           <div className="float-right flex items-center gap-1">
-            <span className={`text-xs ${charCount >= 2000 ? 'text-error' :
+            <span className={`text-xs ${charCount >= 5000 ? 'text-error' :
                 charCount >= 1800 ? 'text-warning' :
                   charCount < 10 ? 'text-gray-500' : 'text-green-500'
               }`}>Limit:</span>
-            <span className={`text-xs ${charCount >= 2000 ? 'text-error' :
+            <span className={`text-xs ${charCount >= 5000 ? 'text-error' :
                 charCount >= 1800 ? 'text-warning' :
                   charCount < 10 ? 'text-gray-500' : 'text-green-500'
               }`}>
-              {charCount}/2000
+              {charCount}/5000
             </span>
           </div>
         </label>
@@ -298,10 +298,11 @@ function CareerForm({ onCareerCreated, initialData, mode, setIsDrawerOpen, caree
             height: 200px;
             overflow-y: auto;
           }
+            
         `}</style>
         {charCount >= 1800 && (
-          <p className={`text-xs mt-1 ${charCount >= 2000 ? 'text-error' : 'text-warning'}`}>
-            {charCount >= 2000 ?
+          <p className={`text-xs mt-1 ${charCount >= 5000 ? 'text-error' : 'text-warning'}`}>
+            {charCount >= 5000 ?
               "Character limit reached." :
               "Approaching character limit."}
           </p>
