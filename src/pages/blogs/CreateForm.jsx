@@ -233,8 +233,8 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     if (value.trim().length < 5) {
       return "Title must be at least 5 characters long";
     }
-    if (value.trim().length > 100) {
-      return "Title cannot exceed 100 characters";
+    if (value.trim().length > 200) {
+      return "Title cannot exceed 200 characters";
     }
     return "";
   };
@@ -271,8 +271,8 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
     if (value.trim().length < 20) {
       return "Excerpt must be at least 20 characters long";
     }
-    if (value.trim().length > 300) {
-      return "Excerpt cannot exceed 300 characters";
+    if (value.trim().length > 1000) {
+      return "Excerpt cannot exceed 1000 characters";
     }
     return "";
   };
@@ -491,6 +491,28 @@ function BlogPostForm({ onBlogCreated, initialData, mode, setIsDrawerOpen }) {
           },
         });
         toast.success(response.data.message || "Blog post created successfully!");
+         setTitle("");
+      setAuthor("");
+      setDate("");
+      setDay("");
+      setMonth("");
+      setYear("");
+      setFormattedDate("");
+      setExcerpt("");
+      setContent("");
+      setImageFile(null);
+      setImagePreview(null);
+      setImageWasRemoved(false);
+      setWordCount(0);
+      // Completely clear all error messages
+      setErrors({
+        title: "",
+        author: "",
+        date: "",
+        excerpt: "",
+        content: "",
+        image: ""
+      });
 
       } else if (mode === "edit" && initialData) {
         response = await axiosInstance.put(
