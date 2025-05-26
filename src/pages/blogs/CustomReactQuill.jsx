@@ -20,6 +20,46 @@ const CustomQuillEditor = ({
     }
   }, []);
 
+
+ useEffect(() => {
+  const toolbar = document.querySelector(".ql-toolbar");
+  if (!toolbar) return;
+
+  const tooltips = {
+    'button.ql-bold': 'Bold',
+    'button.ql-italic': 'Italic',
+    'button.ql-underline': 'Underline',
+    'button.ql-strike': 'Strikethrough',
+    'button.ql-list[value="ordered"]': 'Ordered List',
+    'button.ql-list[value="bullet"]': 'Bullet List',
+    'button.ql-indent[value="-1"]': 'Outdent',
+    'button.ql-indent[value="+1"]': 'Indent',
+    'button.ql-align': 'Align',
+    'button.ql-blockquote': 'Blockquote',
+    'button.ql-code-block': 'Code Block',
+    'button.ql-link': 'Insert Link',
+    'button.ql-clean': 'Remove Formatting',
+    'span.ql-color': 'Text Color',
+    'span.ql-background': 'Background Color',
+    'span.ql-font': 'Font Family',
+    'span.ql-header': 'Header',
+  };
+
+  Object.entries(tooltips).forEach(([selector, title]) => {
+    try {
+      const elements = toolbar.querySelectorAll(selector);
+      elements.forEach((el) => {
+        if (!el.getAttribute("title")) {
+          el.setAttribute("title", title);
+        }
+      });
+    } catch (error) {
+      console.warn(`Invalid selector: ${selector}`, error);
+    }
+  });
+}, []);
+
+
   // Enhanced modules configuration with better list support
   const quillModules = {
     toolbar: [
@@ -49,18 +89,18 @@ const CustomQuillEditor = ({
     'blockquote', 'code-block',
   ];
 
-  // Simplified onChange handler that doesn't manipulate content
+
   const handleChange = useCallback((content, delta, source, editor) => {
-    // Only process content when it's a user change, not programmatic
+
     if (source === 'user') {
       onChange(content);
     } else {
-      // For programmatic changes (like initial load), pass content as-is
+
       onChange(content);
     }
   }, [onChange]);
 
-  // Calculate word count status for styling
+
   const getWordCountStatus = () => {
     if (wordCount > maxWordCount) {
       return "text-error";
