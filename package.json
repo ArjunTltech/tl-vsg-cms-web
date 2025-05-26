@@ -21,6 +21,7 @@
     "axios": "^1.7.7",
     "date-fns": "^4.1.0",
     "firebase": "^11.0.2",
+    "highlight.js": "^11.11.1",
     "install": "^0.13.0",
     "lucide-react": "^0.456.0",
     "npm": "^10.9.2",
