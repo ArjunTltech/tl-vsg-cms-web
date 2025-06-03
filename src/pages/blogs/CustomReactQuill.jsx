@@ -1,15 +1,15 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import "react-quill/dist/quill.snow.css"; 
 
-const CustomQuillEditor = ({ 
-  value, 
-  onChange, 
-  placeholder = "Write your content...", 
+const CustomQuillEditor = ({
+  value,
+  onChange,
+  placeholder = "Write your content...",
   hasError = false,
   wordCount = 0,
   maxWordCount = 5000,
-  minWordCount = 10
+  minWordCount = 10,
 }) => {
   const quillRef = useRef(null);
   const [theme, setTheme] = useState("light");
@@ -20,45 +20,44 @@ const CustomQuillEditor = ({
     }
   }, []);
 
+  // --- Start: Tooltip useEffect (No major changes needed here, as it seemed functional) ---
+  useEffect(() => {
+    const toolbar = document.querySelector(".ql-toolbar");
+    if (!toolbar) return;
 
- useEffect(() => {
-  const toolbar = document.querySelector(".ql-toolbar");
-  if (!toolbar) return;
+    const tooltips = {
+      'button.ql-bold': 'Bold',
+      'button.ql-italic': 'Italic',
+      'button.ql-underline': 'Underline',
+      'button.ql-strike': 'Strikethrough',
+      'button.ql-list[value="ordered"]': 'Ordered List',
+      'button.ql-list[value="bullet"]': 'Bullet List',
+      'button.ql-indent[value="-1"]': 'Outdent',
+      'button.ql-indent[value="+1"]': 'Indent',
+      'button.ql-align': 'Align',
+      'button.ql-blockquote': 'Blockquote',
+      'button.ql-code-block': 'Code Block',
+      'button.ql-link': 'Insert Link',
+      'button.ql-clean': 'Remove Formatting',
+      'span.ql-color': 'Text Color',
+      'span.ql-background': 'Background Color',
+      'span.ql-font': 'Font Family',
+      'span.ql-header': 'Header',
+    };
 
-  const tooltips = {
-    'button.ql-bold': 'Bold',
-    'button.ql-italic': 'Italic',
-    'button.ql-underline': 'Underline',
-    'button.ql-strike': 'Strikethrough',
-    'button.ql-list[value="ordered"]': 'Ordered List',
-    'button.ql-list[value="bullet"]': 'Bullet List',
-    'button.ql-indent[value="-1"]': 'Outdent',
-    'button.ql-indent[value="+1"]': 'Indent',
-    'button.ql-align': 'Align',
-    'button.ql-blockquote': 'Blockquote',
-    'button.ql-code-block': 'Code Block',
-    'button.ql-link': 'Insert Link',
-    'button.ql-clean': 'Remove Formatting',
-    'span.ql-color': 'Text Color',
-    'span.ql-background': 'Background Color',
-    'span.ql-font': 'Font Family',
-    'span.ql-header': 'Header',
-  };
-
-  Object.entries(tooltips).forEach(([selector, title]) => {
-    try {
-      const elements = toolbar.querySelectorAll(selector);
-      elements.forEach((el) => {
-        if (!el.getAttribute("title")) {
-          el.setAttribute("title", title);
-        }
-      });
-    } catch (error) {
-      console.warn(`Invalid selector: ${selector}`, error);
-    }
-  });
-}, []);
-
+    Object.entries(tooltips).forEach(([selector, title]) => {
+      try {
+        const elements = toolbar.querySelectorAll(selector);
+        elements.forEach((el) => {
+          if (!el.getAttribute("title")) {
+            el.setAttribute("title", title);
+          }
+        });
+      } catch (error) {
+        console.warn(`Invalid selector for tooltip: ${selector}`, error);
+      }
+    });
+  }, []); 
 
   // Enhanced modules configuration with better list support
   const quillModules = {
@@ -72,7 +71,7 @@ const CustomQuillEditor = ({
       ['link'],
       ['clean'],
       [{ 'color': [] }, { 'background': [] }],
-      [{ 'font': [] }],
+      [{ 'font': [] }], // If you want specific fonts, define them here: e.g., [{ 'font': ['Arial', 'Times New Roman', false] }]
     ],
     clipboard: {
       matchVisual: false,
@@ -83,29 +82,24 @@ const CustomQuillEditor = ({
   const quillFormats = [
     'header',
     'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent',
+    'list', 'bullet', 'indent', // These are crucial for lists
     'link',
     'align', 'color', 'background', 'font',
     'blockquote', 'code-block',
   ];
 
-
   const handleChange = useCallback((content, delta, source, editor) => {
-
-    if (source === 'user') {
-      onChange(content);
-    } else {
-
-      onChange(content);
-    }
-  }, [onChange]);
-
+    // Simplified: No need for the if/else on 'source', as both branches call onChange
+    onChange(content);
+  }, [onChange]); // Dependency array: onChange should be stable (e.g., wrapped in useCallback in parent if it re-renders often)
 
   const getWordCountStatus = () => {
     if (wordCount > maxWordCount) {
+      return "text-error"; // Assuming Tailwind or similar classes for styling
+    } else if (wordCount < minWordCount && wordCount > 0) { // Only error if less than min AND not empty
       return "text-error";
-    } else if (wordCount < minWordCount) {
-      return "text-error";
+    } else if (wordCount === 0 && minWordCount > 0) { // Explicitly for empty content
+        return "text-error";
     } else if (wordCount > maxWordCount * 0.9) {
       return "text-warning";
     }
@@ -131,6 +125,7 @@ const CustomQuillEditor = ({
           className={`custom-quill ${hasError ? 'quill-error' : ''}`}
           placeholder={placeholder}
         />
+   
         <style jsx global>{`
           .quill-container {
             border-radius: 0.5rem;
@@ -156,18 +151,9 @@ const CustomQuillEditor = ({
             flex-wrap: wrap;
           }
           
-          /* Enhanced nested list styling - Quill handles nesting automatically */
-          .ql-editor ol, .ql-editor ul {
-            padding-left: 1.5em;
-          }
-          
-          .ql-editor li {
-            list-style-type: inherit;
-            margin-bottom: 0.25em;
-            line-height: 1.5;
-          }
-          
-          /* Quill's default indent classes for nested lists */
+          /* --- START: List Styling Review --- */
+          /* Quill's default classes for indenting list items */
+          /* These paddings are usually sufficient for visual nesting */
           .ql-editor .ql-indent-1 { padding-left: 3em; }
           .ql-editor .ql-indent-2 { padding-left: 4.5em; }
           .ql-editor .ql-indent-3 { padding-left: 6em; }
@@ -176,63 +162,53 @@ const CustomQuillEditor = ({
           .ql-editor .ql-indent-6 { padding-left: 10.5em; }
           .ql-editor .ql-indent-7 { padding-left: 12em; }
           .ql-editor .ql-indent-8 { padding-left: 13.5em; }
-          
-          /* Better nested list markers */
+
+          /* Default list-style-type for base lists (usually disc/decimal) */
+          /* If your global CSS sets list-style-type: none; you need to re-enable it for Quill's output */
           .ql-editor ol {
-            counter-reset: list-0 list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+              list-style-type: decimal; /* Ensure default ordered list styling */
+              padding-left: 1.5em; /* Default padding for top-level lists */
           }
-          
+          .ql-editor ul {
+              list-style-type: disc; /* Ensure default unordered list styling */
+              padding-left: 1.5em; /* Default padding for top-level lists */
+          }
+
+          /* --- Custom Counter/Bullet Styling (if you need specific types like a, i, square, circle) --- */
+          /* If you use these, make sure they are not conflicting with generic ol/ul styles */
+          /* And that list-style-type: none; is applied to the specific indented levels */
+
+          .ql-editor ol {
+            counter-reset: custom-list-0;
+          }
           .ql-editor ol > li {
-            counter-increment: list-0;
+            counter-increment: custom-list-0;
+            list-style-type: none;
           }
-          
           .ql-editor ol > li:before {
-            content: counter(list-0, decimal) '. ';
+            content: counter(custom-list-0, decimal) '. ';
           }
-          
-          .ql-editor .ql-indent-1.ql-list-ordered {
-            counter-increment: list-1;
+
+          .ql-editor ol ol {
+            counter-reset: custom-list-1;
           }
-          
-          .ql-editor .ql-indent-1.ql-list-ordered:before {
-            content: counter(list-1, lower-alpha) '. ';
+          .ql-editor ol ol > li {
+            counter-increment: custom-list-1;
           }
-          
-          .ql-editor .ql-indent-2.ql-list-ordered {
-            counter-increment: list-2;
+          .ql-editor ol ol > li:before {
+            content: counter(custom-list-1, lower-alpha) '. ';
           }
-          
-          .ql-editor .ql-indent-2.ql-list-ordered:before {
-            content: counter(list-2, lower-roman) '. ';
+
+          .ql-editor ol ol ol {
+            counter-reset: custom-list-2;
           }
-          
-          /* Different bullet styles for nested unordered lists */
-          .ql-editor ul > li:before {
-            content: '\u2022';
-            color: inherit;
-            font-weight: bold;
-            display: inline-block;
-            width: 1em;
-            margin-left: -1em;
+          .ql-editor ol ol ol > li {
+            counter-increment: custom-list-2;
           }
-          
-          .ql-editor .ql-indent-1.ql-list-bullet:before {
-            content: '\u25E6'; /* White bullet */
+          .ql-editor ol ol ol > li:before {
+            content: counter(custom-list-2, lower-roman) '. ';
           }
-          
-          .ql-editor .ql-indent-2.ql-list-bullet:before {
-            content: '\u25AA'; /* Black small square */
-          }
-          
-          .ql-editor .ql-indent-3.ql-list-bullet:before {
-            content: '\u25AB'; /* White small square */
-          }
-          
-          .ql-editor .ql-indent-4.ql-list-bullet:before {
-            content: '\u2043'; /* Hyphen bullet */
-          }
-          
-          /* Fix for proper list nesting display */
+          /* Apply list-style-type: none; to prevent default markers */
           .ql-editor li.ql-indent-1,
           .ql-editor li.ql-indent-2,
           .ql-editor li.ql-indent-3,
@@ -241,8 +217,31 @@ const CustomQuillEditor = ({
           .ql-editor li.ql-indent-6,
           .ql-editor li.ql-indent-7,
           .ql-editor li.ql-indent-8 {
-            list-style-type: none;
+              list-style-type: none; /* Ensures custom counters/bullets show */
           }
+
+          /* Different bullet styles for nested unordered lists */
+          .ql-editor ul > li:before {
+            content: '\u2022'; /* Default bullet */
+            color: inherit;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+          }
+          .ql-editor .ql-indent-1.ql-list-bullet:before {
+            content: '\u25E6'; /* White bullet / circle */
+          }
+          .ql-editor .ql-indent-2.ql-list-bullet:before {
+            content: '\u25AA'; /* Black small square */
+          }
+          .ql-editor .ql-indent-3.ql-list-bullet:before {
+            content: '\u25AB'; /* White small square */
+          }
+          .ql-editor .ql-indent-4.ql-list-bullet:before {
+            content: '\u2043'; /* Hyphen bullet */
+          }
+          /* --- END: List Styling Review --- */
           
           /* Error state styling */
           .quill-error .ql-toolbar {
@@ -363,7 +362,7 @@ const CustomQuillEditor = ({
           .dark-mode .ql-editor blockquote {
             border-left-color: #4a5568;
           }
-          
+      
           /* Code block styling */
           .ql-editor pre {
             background-color: #f1f1f1;
@@ -408,7 +407,6 @@ const CustomQuillEditor = ({
           .ql-editor ::selection {
             background-color: rgba(0, 123, 255, 0.2);
           }
-          
           .dark-mode .ql-editor ::selection {
             background-color: rgba(99, 179, 237, 0.3);
           }
