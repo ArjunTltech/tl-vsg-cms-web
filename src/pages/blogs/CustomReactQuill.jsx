@@ -20,7 +20,7 @@ const CustomQuillEditor = ({
     }
   }, []);
 
-  // --- Start: Tooltip useEffect (No major changes needed here, as it seemed functional) ---
+
   useEffect(() => {
     const toolbar = document.querySelector(".ql-toolbar");
     if (!toolbar) return;
@@ -59,7 +59,7 @@ const CustomQuillEditor = ({
     });
   }, []); 
 
-  // Enhanced modules configuration with better list support
+
   const quillModules = {
     toolbar: [
       [{ 'header': [1, 2, 3, false] }],
@@ -71,34 +71,34 @@ const CustomQuillEditor = ({
       ['link'],
       ['clean'],
       [{ 'color': [] }, { 'background': [] }],
-      [{ 'font': [] }], // If you want specific fonts, define them here: e.g., [{ 'font': ['Arial', 'Times New Roman', false] }]
+      [{ 'font': [] }], 
     ],
     clipboard: {
       matchVisual: false,
     },
   };
 
-  // All supported formats including indent for nested lists
+
   const quillFormats = [
     'header',
     'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent', // These are crucial for lists
+    'list', 'bullet', 'indent', 
     'link',
     'align', 'color', 'background', 'font',
     'blockquote', 'code-block',
   ];
 
   const handleChange = useCallback((content, delta, source, editor) => {
-    // Simplified: No need for the if/else on 'source', as both branches call onChange
+
     onChange(content);
-  }, [onChange]); // Dependency array: onChange should be stable (e.g., wrapped in useCallback in parent if it re-renders often)
+  }, [onChange]);
 
   const getWordCountStatus = () => {
     if (wordCount > maxWordCount) {
-      return "text-error"; // Assuming Tailwind or similar classes for styling
-    } else if (wordCount < minWordCount && wordCount > 0) { // Only error if less than min AND not empty
       return "text-error";
-    } else if (wordCount === 0 && minWordCount > 0) { // Explicitly for empty content
+    } else if (wordCount < minWordCount && wordCount > 0) {
+      return "text-error";
+    } else if (wordCount === 0 && minWordCount > 0) { 
         return "text-error";
     } else if (wordCount > maxWordCount * 0.9) {
       return "text-warning";
